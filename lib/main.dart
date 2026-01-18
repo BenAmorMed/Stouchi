@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/auth_provider.dart';
 import 'features/auth/login_screen.dart';
-import 'features/auth/setup_profile_screen.dart';
 import 'features/pos/pos_screen.dart';
 import 'features/admin/admin_dashboard.dart';
 import 'core/models/user_role.dart';

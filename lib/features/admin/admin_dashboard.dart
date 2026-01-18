@@ -8,6 +8,7 @@ import 'article_management_screen.dart';
 import 'user_management_screen.dart';
 import '../statistics/admin_statistics_screen.dart';
 import '../auth/profile_screen.dart';
+import '../auth/setup_profile_screen.dart';
 
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});

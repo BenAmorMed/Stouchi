@@ -8,7 +8,9 @@ import '../statistics/server_statistics_screen.dart';
 import '../../core/models/article_model.dart';
 import '../../core/models/order_item_model.dart';
 import '../auth/profile_screen.dart';
+import '../auth/setup_profile_screen.dart';
 import '../auth/auth_provider.dart';
+import '../../core/models/user_role.dart';
 
 class POSScreen extends ConsumerWidget {
   const POSScreen({super.key});
