@@ -127,8 +127,8 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                   TextFormField(
                     controller: _currentPasswordController,
                     decoration: const InputDecoration(
-                      labelText: 'Temporary Password',
-                      hintText: 'The password given by your administrator',
+                      labelText: 'Current Password',
+                      hintText: 'The password you just used to log in',
                       prefixIcon: Icon(Icons.key_rounded),
                     ),
                     obscureText: true,

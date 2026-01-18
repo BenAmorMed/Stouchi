@@ -17,9 +17,16 @@ service cloud.firestore {
     // User profiles
     match /users/{userId} {
       // Allow user to read their own profile, or admin to read any
-      allow read: if isAuthenticated() && (request.auth.uid == userId || (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'));
-      // Only admin can create/modify users (except for registration which we handle in Auth Service / Admin app)
-      allow write: if isAuthenticated() && (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      // Admin can create/delete any user
+      allow create, delete: if isAdmin();
+      
+      // Users can update their own profile, but cannot change their own role
+      allow update: if isAuthenticated() && (
+        (request.auth.uid == userId && request.resource.data.role == resource.data.role) || 
+        isAdmin()
+      );
     }
 
     // Menu: Categories & Articles
