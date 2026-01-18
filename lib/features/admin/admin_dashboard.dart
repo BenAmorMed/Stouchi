@@ -7,6 +7,7 @@ import 'category_management_screen.dart';
 import 'article_management_screen.dart';
 import 'user_management_screen.dart';
 import '../statistics/admin_statistics_screen.dart';
+import '../auth/profile_screen.dart';
 
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});
@@ -22,6 +23,13 @@ class AdminDashboard extends ConsumerWidget {
         ),
         backgroundColor: Colors.transparent,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person_outline_rounded),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.logout_rounded),
             onPressed: () => ref.read(authServiceProvider).signOut(),
@@ -90,6 +98,16 @@ class AdminDashboard extends ConsumerWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const AdminStatisticsScreen()),
+                  ),
+                ),
+                _AdminCard(
+                  title: 'My Profile',
+                  subtitle: 'Account settings',
+                  icon: Icons.manage_accounts_rounded,
+                  color: Colors.indigoAccent,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfileScreen()),
                   ),
                 ),
               ],

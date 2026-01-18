@@ -36,29 +36,65 @@ class AuthService {
     await _db.collection('users').doc(uid).delete();
   }
 
-  // Complete onboarding flow
-  Future<void> completeOnboarding(String name, String currentPassword, String newPassword) async {
+  // Update personal profile (name, email, password)
+  Future<void> updateProfile({
+    String? name,
+    String? email,
+    String? currentPassword,
+    String? newPassword,
+  }) async {
     final user = _auth.currentUser;
-    if (user != null) {
-      // 1. Re-authenticate (Sensitive operations like password change require recent login)
+    if (user == null) throw Exception('No user logged in');
+
+    // 1. Re-authenticate if changing email or password
+    if ((email != null && email != user.email) || newPassword != null) {
+      if (currentPassword == null) throw Exception('Current password required for this change');
       final credential = EmailAuthProvider.credential(
         email: user.email!,
         password: currentPassword,
       );
       await user.reauthenticateWithCredential(credential);
+    }
 
-      // 2. Update Password
+    // 2. Update Auth Email
+    if (email != null && email != user.email) {
+      await user.verifyBeforeUpdateEmail(email);
+    }
+
+    // 3. Update Auth Password
+    if (newPassword != null) {
       await user.updatePassword(newPassword);
-      
-      // 3. Update Firestore profile
+    }
+
+    // 4. Update Firestore
+    if (name != null || (email != null && email != user.email)) {
       final doc = await _db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         final userModel = UserModel.fromJson({...doc.data()!, 'id': doc.id});
         final updatedModel = userModel.copyWith(
-          name: name,
-          isFirstLogin: false,
+          name: name ?? userModel.name,
+          email: email ?? userModel.email,
         );
         await updateUser(updatedModel);
+      }
+    }
+  }
+
+  // Complete onboarding flow
+  Future<void> completeOnboarding(String name, String currentPassword, String newPassword) async {
+    await updateProfile(
+      name: name,
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+    
+    // Set isFirstLogin to false
+    final user = _auth.currentUser;
+    if (user != null) {
+      final doc = await _db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        final userModel = UserModel.fromJson({...doc.data()!, 'id': doc.id});
+        await updateUser(userModel.copyWith(isFirstLogin: false));
       }
     }
   }

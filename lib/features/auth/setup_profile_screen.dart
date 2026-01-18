@@ -2,20 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../auth/auth_provider.dart';
 
-class SetupProfileScreen extends StatefulWidget {
+class SetupProfileScreen extends ConsumerStatefulWidget {
   const SetupProfileScreen({super.key});
-
   @override
-  State<SetupProfileScreen> createState() => _SetupProfileScreenState();
+  ConsumerState<SetupProfileScreen> createState() => _SetupProfileScreenState();
 }
 
-class _SetupProfileScreenState extends State<SetupProfileScreen> {
+class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _currentPasswordController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill name if already set by admin
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final profile = ref.read(userProfileProvider).value;
+      if (profile != null && profile.name != '(vide)') {
+        _nameController.text = profile.name;
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -103,6 +114,8 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                       prefixIcon: Icon(Icons.lock_outline),
                     ),
                     obscureText: true,
+                    // If name is pre-filled, we still want a strong password, 
+                    // but the user might just want to keep their name.
                     validator: (val) => (val?.length ?? 0) < 6 ? 'Min 6 chars' : null,
                   ),
                   const SizedBox(height: 16),

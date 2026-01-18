@@ -7,6 +7,8 @@ import 'checkout_screen.dart';
 import '../statistics/server_statistics_screen.dart';
 import '../../core/models/article_model.dart';
 import '../../core/models/order_item_model.dart';
+import '../auth/profile_screen.dart';
+import '../auth/auth_provider.dart';
 
 class POSScreen extends ConsumerWidget {
   const POSScreen({super.key});
@@ -24,11 +26,22 @@ class POSScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
+            icon: const Icon(Icons.person_outline_rounded),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+            ),
+          ),
+          IconButton(
             icon: const Icon(Icons.bar_chart_rounded),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ServerStatisticsScreen()),
             ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded),
+            onPressed: () => ref.read(authServiceProvider).signOut(),
           ),
           const SizedBox(width: 8),
         ],
