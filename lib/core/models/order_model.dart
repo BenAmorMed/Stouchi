@@ -10,6 +10,7 @@ enum OrderStatus {
   cancelled,
 }
 
+@JsonSerializable(explicitToJson: true)
 @freezed
 class OrderModel with _$OrderModel {
   const factory OrderModel({

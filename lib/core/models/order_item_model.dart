@@ -3,6 +3,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'order_item_model.freezed.dart';
 part 'order_item_model.g.dart';
 
+@JsonSerializable(explicitToJson: true)
 @freezed
 class OrderItemModel with _$OrderItemModel {
   const factory OrderItemModel({
