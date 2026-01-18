@@ -56,10 +56,8 @@ class AuthWrapper extends ConsumerWidget {
               );
             }
 
-            // Forced onboarding (only for non-admin users)
-            if (profile.isFirstLogin && profile.role != UserRole.admin) {
-              return const SetupProfileScreen();
-            }
+            // Non-blocking onboarding: 
+            // We follow the user request: "connect first to dashboard after that prompt pop up"
             
             if (profile.role == UserRole.admin) {
               return const AdminDashboard();

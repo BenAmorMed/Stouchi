@@ -14,6 +14,21 @@ class AdminDashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(userProfileProvider).value;
+
+    // Non-blocking onboarding prompt
+    if (profile != null && profile.isFirstLogin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => Dialog.fullscreen(
+            child: const SetupProfileScreen(),
+          ),
+        );
+      });
+    }
+
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(

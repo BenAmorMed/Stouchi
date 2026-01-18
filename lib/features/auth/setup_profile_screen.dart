@@ -48,6 +48,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
         _currentPasswordController.text.trim(),
         _passwordController.text.trim(),
       );
+      if (mounted) Navigator.pop(context);
     } on Exception catch (e) {
       if (mounted) {
         String message = e.toString();
@@ -67,6 +68,7 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
     setState(() => _isLoading = true);
     try {
       await ref.read(authServiceProvider).skipOnboarding();
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

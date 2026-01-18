@@ -18,6 +18,20 @@ class POSScreen extends ConsumerWidget {
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final cart = ref.watch(cartProvider);
+    final profile = ref.watch(userProfileProvider).value;
+
+    // Non-blocking onboarding prompt
+    if (profile != null && profile.isFirstLogin && profile.role != UserRole.admin) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false, // Force them to at least see it
+          builder: (context) => Dialog.fullscreen(
+            child: const SetupProfileScreen(),
+          ),
+        );
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
