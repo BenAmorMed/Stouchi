@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/models/order_model.dart';
 import '../../core/theme/app_theme.dart';
 import 'pos_provider.dart';
 import 'widgets/comment_modal.dart';
@@ -16,7 +17,6 @@ class POSScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final cart = ref.watch(cartProvider);
 
@@ -314,7 +314,7 @@ class POSScreen extends ConsumerWidget {
                                     alignment: Alignment.centerRight,
                                     child: Text(
                                       '\$${(item.price * item.quantity).toStringAsFixed(2)}',
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.black, color: Colors.white),
+                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: Colors.white),
                                     ),
                                   ),
                                 ],
