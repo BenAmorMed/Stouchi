@@ -26,10 +26,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       if (mounted) {
         String message = e.toString();
         if (message.contains('invalid-email')) {
-          message = 'The email is not in the appropriate format.';
+          message = 'The email format is incorrect. Please check for typos.';
+        } else if (message.contains('invalid-credential') || message.contains('user-not-found') || message.contains('wrong-password')) {
+          message = 'Incorrect email or password. Please try again.';
+        } else if (message.contains('network-request-failed')) {
+          message = 'Network error. Please check your internet connection.';
+        } else {
+          message = 'An unexpected error occurred. Please try again later.';
         }
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $message')),
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.redAccent,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
         );
       }
     } finally {

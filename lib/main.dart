@@ -79,11 +79,38 @@ class AuthWrapper extends ConsumerWidget {
               return const POSScreen();
             }
           },
-          loading: () => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          loading: () => Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  const Text('Loading profile...'),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () => ref.read(authServiceProvider).signOut(),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Sign Out'),
+                  ),
+                ],
+              ),
+            ),
           ),
           error: (e, stack) => Scaffold(
-            body: Center(child: Text('Error: $e')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error loading profile: $e'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => ref.read(authServiceProvider).signOut(),
+                    child: const Text('Sign Out'),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -91,7 +118,19 @@ class AuthWrapper extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (e, stack) => Scaffold(
-        body: Center(child: Text('Error: $e')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $e'),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => ref.read(authServiceProvider).signOut(),
+                child: const Text('Sign Out'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

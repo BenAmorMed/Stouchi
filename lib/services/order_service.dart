@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import '../core/models/order_model.dart';
@@ -46,6 +47,12 @@ class OrderService {
       }
     }
 
-    await batch.commit();
+    try {
+      await batch.commit();
+      debugPrint('OrderService: Order completed successfully for ${order.id}');
+    } catch (e) {
+      debugPrint('OrderService: Error completing order: $e');
+      rethrow;
+    }
   }
 }

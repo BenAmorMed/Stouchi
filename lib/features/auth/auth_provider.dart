@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/auth_service.dart';
@@ -11,9 +12,20 @@ final authStateProvider = StreamProvider((ref) {
 
 final userProfileProvider = FutureProvider<UserModel?>((ref) async {
   final authState = ref.watch(authStateProvider).value;
-  if (authState == null) return null;
+  if (authState == null) {
+    debugPrint('userProfileProvider: No auth state');
+    return null;
+  }
   
-  return ref.read(authServiceProvider).getUserProfile(authState.uid);
+  debugPrint('userProfileProvider: Fetching profile for ${authState.uid}');
+  try {
+    final profile = await ref.read(authServiceProvider).getUserProfile(authState.uid);
+    debugPrint('userProfileProvider: Profile fetched: ${profile != null}');
+    return profile;
+  } catch (e) {
+    debugPrint('userProfileProvider: Error fetching profile: $e');
+    rethrow;
+  }
 });
 
 final allUsersProvider = StreamProvider<List<UserModel>>((ref) {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../core/models/user_model.dart';
@@ -10,11 +11,26 @@ class AuthService {
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
   Future<UserModel?> getUserProfile(String uid) async {
-    final doc = await _db.collection('users').doc(uid).get();
-    if (doc.exists) {
-      return UserModel.fromJson({...doc.data()!, 'id': doc.id});
+    try {
+      // Add timeout to prevent indefinite hanging
+      final doc = await _db.collection('users').doc(uid).get().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          debugPrint('AuthService: getUserProfile timed out for $uid');
+          throw Exception('Connection timed out. Please check your internet connection.');
+        },
+      );
+      
+      debugPrint('AuthService: User profile found for $uid: ${doc.exists}');
+      
+      if (doc.exists) {
+        return UserModel.fromJson({...doc.data()!, 'id': doc.id});
+      }
+      return null;
+    } catch (e) {
+      debugPrint('AuthService: Error fetching user profile: $e');
+      rethrow;
     }
-    return null;
   }
 
   Future<UserCredential> signIn(String email, String password) async {

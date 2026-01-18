@@ -4,7 +4,7 @@ import '../../core/models/category_model.dart';
 import '../../core/models/order_item_model.dart';
 import '../../core/models/order_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../auth/auth_provider.dart';
 
 // Stream of Categories
 final categoriesProvider = StreamProvider<List<CategoryModel>>((ref) {
@@ -33,10 +33,10 @@ final selectedCategoryIdProvider = StateProvider<String?>((ref) => null);
 
 // Cart State (managed as an OrderModel)
 class CartNotifier extends StateNotifier<OrderModel> {
-  CartNotifier()
+  CartNotifier(String userId)
       : super(OrderModel(
           id: '',
-          userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+          userId: userId,
           items: [],
           total: 0.0,
           timestamp: DateTime.now(),
@@ -106,5 +106,6 @@ class CartNotifier extends StateNotifier<OrderModel> {
 }
 
 final cartProvider = StateNotifierProvider<CartNotifier, OrderModel>((ref) {
-  return CartNotifier();
+  final authState = ref.watch(authStateProvider).value;
+  return CartNotifier(authState?.uid ?? '');
 });
