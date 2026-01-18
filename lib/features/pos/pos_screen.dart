@@ -219,7 +219,7 @@ class POSScreen extends ConsumerWidget {
                             final articles = await ref.read(articlesProvider(selectedCategoryId!).future);
                             final article = articles.firstWhere((a) => a.id == item.articleId);
                             
-                            if (mounted) {
+                            if (context.mounted) {
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
