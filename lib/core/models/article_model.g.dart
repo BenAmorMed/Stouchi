@@ -6,27 +6,6 @@ part of 'article_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-ArticleModel _$ArticleModelFromJson(Map<String, dynamic> json) => ArticleModel(
-  id: json['id'] as String,
-  name: json['name'] as String,
-  price: (json['price'] as num).toDouble(),
-  categoryId: json['categoryId'] as String,
-  commentConfig: CommentConfig.fromJson(
-    json['commentConfig'] as Map<String, dynamic>,
-  ),
-  imageUrl: json['imageUrl'] as String?,
-);
-
-Map<String, dynamic> _$ArticleModelToJson(ArticleModel instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'name': instance.name,
-      'price': instance.price,
-      'categoryId': instance.categoryId,
-      'commentConfig': instance.commentConfig.toJson(),
-      'imageUrl': instance.imageUrl,
-    };
-
 _$ArticleModelImpl _$$ArticleModelImplFromJson(Map<String, dynamic> json) =>
     _$ArticleModelImpl(
       id: json['id'] as String,
@@ -47,6 +26,6 @@ Map<String, dynamic> _$$ArticleModelImplToJson(_$ArticleModelImpl instance) =>
       'name': instance.name,
       'price': instance.price,
       'categoryId': instance.categoryId,
-      'commentConfig': instance.commentConfig,
+      'commentConfig': instance.commentConfig.toJson(),
       'imageUrl': instance.imageUrl,
     };

@@ -6,26 +6,6 @@ part of 'order_item_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-OrderItemModel _$OrderItemModelFromJson(Map<String, dynamic> json) =>
-    OrderItemModel(
-      articleId: json['articleId'] as String,
-      articleName: json['articleName'] as String,
-      price: (json['price'] as num).toDouble(),
-      quantity: (json['quantity'] as num).toInt(),
-      comments: (json['comments'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-    );
-
-Map<String, dynamic> _$OrderItemModelToJson(OrderItemModel instance) =>
-    <String, dynamic>{
-      'articleId': instance.articleId,
-      'articleName': instance.articleName,
-      'price': instance.price,
-      'quantity': instance.quantity,
-      'comments': instance.comments,
-    };
-
 _$OrderItemModelImpl _$$OrderItemModelImplFromJson(Map<String, dynamic> json) =>
     _$OrderItemModelImpl(
       articleId: json['articleId'] as String,

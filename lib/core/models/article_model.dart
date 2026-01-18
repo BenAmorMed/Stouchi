@@ -4,7 +4,6 @@ import 'comment_config.dart';
 part 'article_model.freezed.dart';
 part 'article_model.g.dart';
 
-@JsonSerializable(explicitToJson: true)
 @freezed
 class ArticleModel with _$ArticleModel {
   const factory ArticleModel({

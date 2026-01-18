@@ -6,35 +6,6 @@ part of 'order_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => OrderModel(
-  id: json['id'] as String,
-  userId: json['userId'] as String,
-  items: (json['items'] as List<dynamic>)
-      .map((e) => OrderItemModel.fromJson(e as Map<String, dynamic>))
-      .toList(),
-  total: (json['total'] as num).toDouble(),
-  tip: (json['tip'] as num).toDouble(),
-  status: $enumDecode(_$OrderStatusEnumMap, json['status']),
-  timestamp: DateTime.parse(json['timestamp'] as String),
-);
-
-Map<String, dynamic> _$OrderModelToJson(OrderModel instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'userId': instance.userId,
-      'items': instance.items.map((e) => e.toJson()).toList(),
-      'total': instance.total,
-      'tip': instance.tip,
-      'status': _$OrderStatusEnumMap[instance.status]!,
-      'timestamp': instance.timestamp.toIso8601String(),
-    };
-
-const _$OrderStatusEnumMap = {
-  OrderStatus.pending: 'pending',
-  OrderStatus.completed: 'completed',
-  OrderStatus.cancelled: 'cancelled',
-};
-
 _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
     _$OrderModelImpl(
       id: json['id'] as String,
@@ -54,9 +25,15 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
-      'items': instance.items,
+      'items': instance.items.map((e) => e.toJson()).toList(),
       'total': instance.total,
       'tip': instance.tip,
       'status': _$OrderStatusEnumMap[instance.status]!,
       'timestamp': instance.timestamp.toIso8601String(),
     };
+
+const _$OrderStatusEnumMap = {
+  OrderStatus.pending: 'pending',
+  OrderStatus.completed: 'completed',
+  OrderStatus.cancelled: 'cancelled',
+};
