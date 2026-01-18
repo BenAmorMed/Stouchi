@@ -9,22 +9,37 @@ import 'features/admin/admin_dashboard.dart';
 import 'core/models/user_role.dart';
 import 'firebase_options.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'core/theme/theme_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const ProviderScope(child: StouchiApp()));
+  
+  final prefs = await SharedPreferences.getInstance();
+
+  runApp(ProviderScope(
+    overrides: [
+      sharedPreferencesProvider.overrideWithValue(prefs),
+    ],
+    child: const StouchiApp(),
+  ));
 }
 
-class StouchiApp extends StatelessWidget {
+class StouchiApp extends ConsumerWidget {
   const StouchiApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+
     return MaterialApp(
       title: 'Stouchi POS',
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeMode,
       debugShowCheckedModeBanner: false,
       home: const AuthWrapper(),
     );

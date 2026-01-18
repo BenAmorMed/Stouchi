@@ -27,6 +27,9 @@ mixin _$OrderModel {
   double get total => throw _privateConstructorUsedError;
   double get tip => throw _privateConstructorUsedError;
   OrderStatus get status => throw _privateConstructorUsedError;
+  String? get tableId => throw _privateConstructorUsedError;
+  String? get tableName => throw _privateConstructorUsedError;
+  @TimestampConverter()
   DateTime get timestamp => throw _privateConstructorUsedError;
 
   /// Serializes this OrderModel to a JSON map.
@@ -53,7 +56,9 @@ abstract class $OrderModelCopyWith<$Res> {
     double total,
     double tip,
     OrderStatus status,
-    DateTime timestamp,
+    String? tableId,
+    String? tableName,
+    @TimestampConverter() DateTime timestamp,
   });
 }
 
@@ -78,6 +83,8 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
     Object? total = null,
     Object? tip = null,
     Object? status = null,
+    Object? tableId = freezed,
+    Object? tableName = freezed,
     Object? timestamp = null,
   }) {
     return _then(
@@ -106,6 +113,14 @@ class _$OrderModelCopyWithImpl<$Res, $Val extends OrderModel>
                 ? _value.status
                 : status // ignore: cast_nullable_to_non_nullable
                       as OrderStatus,
+            tableId: freezed == tableId
+                ? _value.tableId
+                : tableId // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            tableName: freezed == tableName
+                ? _value.tableName
+                : tableName // ignore: cast_nullable_to_non_nullable
+                      as String?,
             timestamp: null == timestamp
                 ? _value.timestamp
                 : timestamp // ignore: cast_nullable_to_non_nullable
@@ -132,7 +147,9 @@ abstract class _$$OrderModelImplCopyWith<$Res>
     double total,
     double tip,
     OrderStatus status,
-    DateTime timestamp,
+    String? tableId,
+    String? tableName,
+    @TimestampConverter() DateTime timestamp,
   });
 }
 
@@ -156,6 +173,8 @@ class __$$OrderModelImplCopyWithImpl<$Res>
     Object? total = null,
     Object? tip = null,
     Object? status = null,
+    Object? tableId = freezed,
+    Object? tableName = freezed,
     Object? timestamp = null,
   }) {
     return _then(
@@ -184,6 +203,14 @@ class __$$OrderModelImplCopyWithImpl<$Res>
             ? _value.status
             : status // ignore: cast_nullable_to_non_nullable
                   as OrderStatus,
+        tableId: freezed == tableId
+            ? _value.tableId
+            : tableId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        tableName: freezed == tableName
+            ? _value.tableName
+            : tableName // ignore: cast_nullable_to_non_nullable
+                  as String?,
         timestamp: null == timestamp
             ? _value.timestamp
             : timestamp // ignore: cast_nullable_to_non_nullable
@@ -202,8 +229,10 @@ class _$OrderModelImpl implements _OrderModel {
     required final List<OrderItemModel> items,
     required this.total,
     this.tip = 0.0,
-    this.status = OrderStatus.completed,
-    required this.timestamp,
+    this.status = OrderStatus.pending,
+    this.tableId,
+    this.tableName,
+    @TimestampConverter() required this.timestamp,
   }) : _items = items;
 
   factory _$OrderModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -230,11 +259,16 @@ class _$OrderModelImpl implements _OrderModel {
   @JsonKey()
   final OrderStatus status;
   @override
+  final String? tableId;
+  @override
+  final String? tableName;
+  @override
+  @TimestampConverter()
   final DateTime timestamp;
 
   @override
   String toString() {
-    return 'OrderModel(id: $id, userId: $userId, items: $items, total: $total, tip: $tip, status: $status, timestamp: $timestamp)';
+    return 'OrderModel(id: $id, userId: $userId, items: $items, total: $total, tip: $tip, status: $status, tableId: $tableId, tableName: $tableName, timestamp: $timestamp)';
   }
 
   @override
@@ -248,6 +282,9 @@ class _$OrderModelImpl implements _OrderModel {
             (identical(other.total, total) || other.total == total) &&
             (identical(other.tip, tip) || other.tip == tip) &&
             (identical(other.status, status) || other.status == status) &&
+            (identical(other.tableId, tableId) || other.tableId == tableId) &&
+            (identical(other.tableName, tableName) ||
+                other.tableName == tableName) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp));
   }
@@ -262,6 +299,8 @@ class _$OrderModelImpl implements _OrderModel {
     total,
     tip,
     status,
+    tableId,
+    tableName,
     timestamp,
   );
 
@@ -287,7 +326,9 @@ abstract class _OrderModel implements OrderModel {
     required final double total,
     final double tip,
     final OrderStatus status,
-    required final DateTime timestamp,
+    final String? tableId,
+    final String? tableName,
+    @TimestampConverter() required final DateTime timestamp,
   }) = _$OrderModelImpl;
 
   factory _OrderModel.fromJson(Map<String, dynamic> json) =
@@ -306,6 +347,11 @@ abstract class _OrderModel implements OrderModel {
   @override
   OrderStatus get status;
   @override
+  String? get tableId;
+  @override
+  String? get tableName;
+  @override
+  @TimestampConverter()
   DateTime get timestamp;
 
   /// Create a copy of OrderModel

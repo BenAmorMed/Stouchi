@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../utils/timestamp_converter.dart';
 import 'order_item_model.dart';
 
 part 'order_model.freezed.dart';
@@ -18,8 +19,10 @@ class OrderModel with _$OrderModel {
     required List<OrderItemModel> items,
     required double total,
     @Default(0.0) double tip,
-    @Default(OrderStatus.completed) OrderStatus status,
-    required DateTime timestamp,
+    @Default(OrderStatus.pending) OrderStatus status,
+    String? tableId,
+    String? tableName,
+    @TimestampConverter() required DateTime timestamp,
   }) = _OrderModel;
 
   factory OrderModel.fromJson(Map<String, dynamic> json) =>

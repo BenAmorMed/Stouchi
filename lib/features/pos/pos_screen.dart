@@ -8,9 +8,9 @@ import 'widgets/comment_modal.dart';
 import 'checkout_screen.dart';
 import '../statistics/server_statistics_screen.dart';
 import '../../core/models/article_model.dart';
+import 'live_orders_screen.dart';
 import '../../core/models/order_item_model.dart';
 import '../auth/profile_screen.dart';
-import '../auth/auth_provider.dart';
 
 class POSScreen extends ConsumerWidget {
   const POSScreen({super.key});
@@ -19,13 +19,14 @@ class POSScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final cart = ref.watch(cartProvider);
+    final theme = Theme.of(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 900;
 
         return Scaffold(
-          backgroundColor: AppTheme.backgroundColor,
+          backgroundColor: theme.scaffoldBackgroundColor,
           appBar: AppBar(
             title: const Text('Stouchi POS'),
             backgroundColor: Colors.transparent,
@@ -39,6 +40,13 @@ class POSScreen extends ConsumerWidget {
                 : null,
             actions: [
               IconButton(
+                icon: const Icon(Icons.table_bar_rounded),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LiveOrdersScreen()),
+                ),
+              ),
+              IconButton(
                 icon: const Icon(Icons.person_outline_rounded),
                 onPressed: () => Navigator.push(
                   context,
@@ -51,10 +59,6 @@ class POSScreen extends ConsumerWidget {
                   context,
                   MaterialPageRoute(builder: (context) => const ServerStatisticsScreen()),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout_rounded),
-                onPressed: () => ref.read(authServiceProvider).signOut(),
               ),
               if (isMobile)
                 Builder(
@@ -112,13 +116,16 @@ class POSScreen extends ConsumerWidget {
   Widget _buildCategoriesSidebar(BuildContext context, WidgetRef ref, bool isDrawer) {
     final categoriesAsync = ref.watch(categoriesProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
+    final theme = Theme.of(context);
 
     final content = ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           width: isDrawer ? 280 : null,
-          color: isDrawer ? AppTheme.surfaceColor.withValues(alpha: 0.9) : AppTheme.surfaceColor.withValues(alpha: 0.4),
+          color: isDrawer 
+              ? theme.cardColor.withValues(alpha: 0.9) 
+              : theme.cardColor.withValues(alpha: 0.4),
           child: categoriesAsync.when(
             data: (categories) {
               if (selectedCategoryId == null && categories.isNotEmpty) {
@@ -145,17 +152,17 @@ class POSScreen extends ConsumerWidget {
                         curve: Curves.easeInOut,
                         padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppTheme.primaryColor : Colors.white.withValues(alpha: 0.03),
+                          color: isSelected ? theme.primaryColor : theme.canvasColor.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: isSelected
-                              ? [BoxShadow(color: AppTheme.primaryColor.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))]
+                              ? [BoxShadow(color: theme.primaryColor.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))]
                               : [],
                         ),
                         child: Row(
                           children: [
                             Icon(
                               Icons.category_rounded,
-                              color: isSelected ? Colors.white : AppTheme.mutedTextColor,
+                              color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
                               size: 18,
                             ),
                             const SizedBox(width: 12),
@@ -165,7 +172,7 @@ class POSScreen extends ConsumerWidget {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  color: isSelected ? Colors.white : AppTheme.mutedTextColor,
+                                  color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
                                   letterSpacing: 0.5,
                                 ),
                               ),
@@ -192,6 +199,7 @@ class POSScreen extends ConsumerWidget {
   Widget _buildOrderSidebar(BuildContext context, WidgetRef ref, bool isDrawer) {
     final cart = ref.watch(cartProvider);
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
+    final theme = Theme.of(context);
 
     final content = ClipRRect(
       child: BackdropFilter(
@@ -199,18 +207,53 @@ class POSScreen extends ConsumerWidget {
         child: Container(
           width: isDrawer ? 320 : null,
           decoration: BoxDecoration(
-            color: isDrawer ? AppTheme.surfaceColor.withValues(alpha: 0.9) : AppTheme.surfaceColor.withValues(alpha: 0.4),
-            border: isDrawer ? null : Border(left: BorderSide(color: Colors.white.withValues(alpha: 0.05))),
+            color: isDrawer 
+                ? theme.cardColor.withValues(alpha: 0.9) 
+                : theme.cardColor.withValues(alpha: 0.4),
+            border: isDrawer ? null : Border(left: BorderSide(color: theme.dividerColor.withValues(alpha: 0.1))),
           ),
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.all(24),
-                child: Row(
+                child: Column(
                   children: [
-                    Icon(Icons.receipt_long_rounded, color: AppTheme.primaryColor),
-                    const SizedBox(width: 12),
-                    const Text('Current Order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Row(
+                      children: [
+                        Icon(Icons.receipt_long_rounded, color: theme.primaryColor),
+                        const SizedBox(width: 12),
+                        Text('Current Order', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: theme.textTheme.bodyLarge?.color)),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    InkWell(
+                      onTap: () => _showTablePicker(context, ref),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: theme.canvasColor.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.table_restaurant_rounded, size: 18, color: theme.primaryColor),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                cart.tableName ?? 'Select Table',
+                                style: TextStyle(
+                                  color: cart.tableName != null ? theme.textTheme.bodyLarge?.color : theme.textTheme.bodyMedium?.color,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: theme.textTheme.bodyMedium?.color),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -365,6 +408,17 @@ class POSScreen extends ConsumerWidget {
                       ),
                       child: const Text('Quick Save & New', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                     ),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: cart.items.isEmpty ? null : () => _cancelOrder(context, ref),
+                      icon: const Icon(Icons.delete_outline, size: 20),
+                      label: const Text('Cancel Order', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red.withValues(alpha: 0.8),
+                        minimumSize: const Size.fromHeight(48),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -446,43 +500,118 @@ class POSScreen extends ConsumerWidget {
 
   void _quickSave(BuildContext context, WidgetRef ref) async {
     final cart = ref.read(cartProvider);
+    
+    if (cart.tableName == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a table first! 🏢')),
+      );
+      _showTablePicker(context, ref);
+      return;
+    }
+
+    try {
+      final finalOrder = cart.copyWith(
+        timestamp: DateTime.now(), 
+        status: OrderStatus.pending, // Pending order for the table
+        tip: 0.0,
+      );
+      await ref.read(orderServiceProvider).completeOrder(finalOrder);
+      ref.read(cartProvider.notifier).clear();
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Order saved to table successfully! 🏢🚀')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving order: $e')),
+        );
+      }
+    }
+  }
+
+  void _cancelOrder(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppTheme.surfaceColor,
-        title: const Text('Quick Save & New'),
-        content: Text('Are you sure you want to save this order of \$${cart.total.toStringAsFixed(2)} and start a new one?'),
+        title: const Text('Cancel Order?', style: TextStyle(color: Colors.white)),
+        content: const Text('Are you sure you want to cancel the current order? This cannot be undone.', style: TextStyle(color: Colors.white70)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            child: const Text('No, Keep Order', style: TextStyle(color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Save Order'),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
 
     if (confirmed == true) {
-      try {
-        final finalOrder = cart.copyWith(timestamp: DateTime.now(), tip: 0.0);
-        await ref.read(orderServiceProvider).completeOrder(finalOrder);
-        ref.read(cartProvider.notifier).clear();
-        if (context.mounted) {
+       ref.read(cartProvider.notifier).clear();
+       if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order saved successfully! 🚀')),
+            const SnackBar(content: Text('Order cancelled and cleared 🗑️')),
           );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error saving order: $e')),
-          );
-        }
-      }
+       }
     }
+  }
+
+  void _showTablePicker(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: AppTheme.backgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        ),
+        child: Column(
+          children: [
+            const Text('Select Table', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 24),
+            Expanded(
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1,
+                ),
+                itemCount: 20, // 20 tables as example
+                itemBuilder: (context, index) {
+                  final tableName = 'Table ${index + 1}';
+                  return InkWell(
+                    onTap: () {
+                      ref.read(cartProvider.notifier).setTable(tableName);
+                      Navigator.pop(context);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceColor,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                      ),
+                      child: Text(tableName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -525,6 +654,8 @@ class _ArticleCardState extends State<_ArticleCard> with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) => _controller.reverse(),
@@ -536,23 +667,23 @@ class _ArticleCardState extends State<_ArticleCard> with SingleTickerProviderSta
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: widget.isSelected ? AppTheme.primaryColor : AppTheme.surfaceColor,
+            color: widget.isSelected ? theme.primaryColor : theme.cardColor,
             borderRadius: BorderRadius.circular(20), // More rounded
             border: Border.all(
-              color: widget.isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor.withValues(alpha: 0.1),
+              color: widget.isSelected ? theme.primaryColor : theme.dividerColor.withValues(alpha: 0.1),
               width: 2,
             ),
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: AppTheme.primaryColor.withValues(alpha: 0.4),
+                      color: theme.primaryColor.withValues(alpha: 0.4),
                       blurRadius: 12,
                       offset: const Offset(0, 4),
                     )
                   ]
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.1),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     )
@@ -574,7 +705,7 @@ class _ArticleCardState extends State<_ArticleCard> with SingleTickerProviderSta
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: widget.isSelected ? Colors.white : AppTheme.textColor,
+                          color: widget.isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -582,7 +713,7 @@ class _ArticleCardState extends State<_ArticleCard> with SingleTickerProviderSta
                         '\$${widget.article.price.toStringAsFixed(2)}',
                         style: TextStyle(
                           fontSize: 13,
-                          color: widget.isSelected ? Colors.white.withValues(alpha: 0.8) : AppTheme.mutedTextColor,
+                          color: widget.isSelected ? Colors.white.withValues(alpha: 0.8) : theme.textTheme.bodyMedium?.color,
                         ),
                       ),
                     ],

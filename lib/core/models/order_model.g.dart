@@ -17,8 +17,10 @@ _$OrderModelImpl _$$OrderModelImplFromJson(Map<String, dynamic> json) =>
       tip: (json['tip'] as num?)?.toDouble() ?? 0.0,
       status:
           $enumDecodeNullable(_$OrderStatusEnumMap, json['status']) ??
-          OrderStatus.completed,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+          OrderStatus.pending,
+      tableId: json['tableId'] as String?,
+      tableName: json['tableName'] as String?,
+      timestamp: const TimestampConverter().fromJson(json['timestamp']),
     );
 
 Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
@@ -29,7 +31,9 @@ Map<String, dynamic> _$$OrderModelImplToJson(_$OrderModelImpl instance) =>
       'total': instance.total,
       'tip': instance.tip,
       'status': _$OrderStatusEnumMap[instance.status]!,
-      'timestamp': instance.timestamp.toIso8601String(),
+      'tableId': instance.tableId,
+      'tableName': instance.tableName,
+      'timestamp': const TimestampConverter().toJson(instance.timestamp),
     };
 
 const _$OrderStatusEnumMap = {

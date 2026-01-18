@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/models/order_model.dart';
 import 'pos_provider.dart';
 import '../../services/order_service.dart';
 
@@ -24,6 +25,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       final tip = double.tryParse(_tipController.text) ?? 0.0;
       final finalOrder = cart.copyWith(
         tip: tip,
+        status: OrderStatus.completed,
         timestamp: DateTime.now(),
       );
 

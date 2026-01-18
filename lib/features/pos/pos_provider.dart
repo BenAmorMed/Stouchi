@@ -88,7 +88,15 @@ class CartNotifier extends StateNotifier<OrderModel> {
   }
 
   void clear() {
-    state = state.copyWith(items: [], total: 0.0);
+    state = state.copyWith(items: [], total: 0.0, tableName: null, tableId: null);
+  }
+
+  void setTable(String? name) {
+    state = state.copyWith(tableName: name, tableId: name); // Simple ID for now
+  }
+
+  void loadOrder(OrderModel order) {
+    state = order;
   }
 
   void _updateState(List<OrderItemModel> items) {

@@ -11,6 +11,7 @@ service cloud.firestore {
     // We check the role in the user's document
     function isAdmin() {
       return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
@@ -40,9 +41,18 @@ service cloud.firestore {
     // Orders
     match /orders/{orderId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
-      // Only admins can modify/delete historic orders
-      allow update, delete: if isAdmin();
+      // Users can only see their own orders, admins can see all orders
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || 
+        isAdmin()
+      );
+      // Users can update their own pending orders, admins can update any
+      allow update: if isAuthenticated() && (
+        (resource.data.userId == request.auth.uid && resource.data.status == 'pending') || 
+        isAdmin()
+      );
+      // Only admins can delete orders
+      allow delete: if isAdmin();
     }
 
     // Daily Statistics

@@ -23,6 +23,7 @@ DailyStatisticModel _$DailyStatisticModelFromJson(Map<String, dynamic> json) {
 mixin _$DailyStatisticModel {
   String get id => throw _privateConstructorUsedError;
   String get userId => throw _privateConstructorUsedError;
+  @TimestampConverter()
   DateTime get date => throw _privateConstructorUsedError;
   double get sales => throw _privateConstructorUsedError;
   double get tips => throw _privateConstructorUsedError;
@@ -48,7 +49,7 @@ abstract class $DailyStatisticModelCopyWith<$Res> {
   $Res call({
     String id,
     String userId,
-    DateTime date,
+    @TimestampConverter() DateTime date,
     double sales,
     double tips,
     int orderCount,
@@ -121,7 +122,7 @@ abstract class _$$DailyStatisticModelImplCopyWith<$Res>
   $Res call({
     String id,
     String userId,
-    DateTime date,
+    @TimestampConverter() DateTime date,
     double sales,
     double tips,
     int orderCount,
@@ -186,7 +187,7 @@ class _$DailyStatisticModelImpl implements _DailyStatisticModel {
   const _$DailyStatisticModelImpl({
     required this.id,
     required this.userId,
-    required this.date,
+    @TimestampConverter() required this.date,
     this.sales = 0.0,
     this.tips = 0.0,
     this.orderCount = 0,
@@ -200,6 +201,7 @@ class _$DailyStatisticModelImpl implements _DailyStatisticModel {
   @override
   final String userId;
   @override
+  @TimestampConverter()
   final DateTime date;
   @override
   @JsonKey()
@@ -256,7 +258,7 @@ abstract class _DailyStatisticModel implements DailyStatisticModel {
   const factory _DailyStatisticModel({
     required final String id,
     required final String userId,
-    required final DateTime date,
+    @TimestampConverter() required final DateTime date,
     final double sales,
     final double tips,
     final int orderCount,
@@ -270,6 +272,7 @@ abstract class _DailyStatisticModel implements DailyStatisticModel {
   @override
   String get userId;
   @override
+  @TimestampConverter()
   DateTime get date;
   @override
   double get sales;

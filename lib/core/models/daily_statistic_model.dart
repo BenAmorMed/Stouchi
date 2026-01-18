@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import '../utils/timestamp_converter.dart';
 
 part 'daily_statistic_model.freezed.dart';
 part 'daily_statistic_model.g.dart';
@@ -8,7 +9,7 @@ class DailyStatisticModel with _$DailyStatisticModel {
   const factory DailyStatisticModel({
     required String id,
     required String userId,
-    required DateTime date,
+    @TimestampConverter() required DateTime date,
     @Default(0.0) double sales,
     @Default(0.0) double tips,
     @Default(0) int orderCount,

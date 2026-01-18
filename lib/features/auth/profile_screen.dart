@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/theme/theme_provider.dart';
 import 'auth_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
@@ -118,6 +119,38 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(height: 32),
               
+              Text(
+                'Appearance',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 16),
+              Consumer(
+                builder: (context, ref, child) {
+                  final themeMode = ref.watch(themeProvider);
+                  final isDark = themeMode == ThemeMode.dark;
+                  
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                    ),
+                    child: SwitchListTile(
+                      title: const Text('Dark Mode', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: Text(isDark ? 'Easy on the eyes' : 'Bright and clear'),
+                      secondary: Icon(isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded),
+                      value: isDark,
+                      onChanged: (value) => ref.read(themeProvider.notifier).toggleTheme(),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 32),
+              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -204,6 +237,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   child: const Text('Save Changes'),
                 ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(24),
+        child: OutlinedButton.icon(
+          onPressed: () {
+            ref.read(authServiceProvider).signOut();
+            Navigator.pop(context); // Close profile screen after logout
+          },
+          icon: const Icon(Icons.logout_rounded),
+          label: const Text('Sign Out'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Colors.red,
+            side: const BorderSide(color: Colors.red),
+            minimumSize: const Size.fromHeight(56),
           ),
         ),
       ),
