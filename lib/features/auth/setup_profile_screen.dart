@@ -42,8 +42,9 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
 
     setState(() => _isLoading = true);
     try {
+      final profile = ref.read(userProfileProvider).value;
       await ref.read(authServiceProvider).completeOnboarding(
-        _nameController.text.trim(),
+        profile?.name ?? '',
         _currentPasswordController.text.trim(),
         _passwordController.text.trim(),
       );
@@ -115,14 +116,6 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                     style: TextStyle(color: Colors.grey),
                   ),
                   const SizedBox(height: 48),
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Your Full Name',
-                      prefixIcon: Icon(Icons.person_outline),
-                    ),
-                    validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
-                  ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _currentPasswordController,
