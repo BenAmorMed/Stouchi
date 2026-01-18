@@ -72,6 +72,21 @@ class CartNotifier extends StateNotifier<OrderModel> {
     _updateState(newItems);
   }
 
+  void updateItem(String articleId, int quantity, List<String> comments) {
+    final newItems = state.items.map((item) {
+      if (item.articleId == articleId) {
+        return item.copyWith(quantity: quantity, comments: comments);
+      }
+      return item;
+    }).toList();
+    _updateState(newItems);
+  }
+
+  void removeItem(String articleId) {
+    final newItems = state.items.where((item) => item.articleId != articleId).toList();
+    _updateState(newItems);
+  }
+
   void clear() {
     state = state.copyWith(items: [], total: 0.0);
   }

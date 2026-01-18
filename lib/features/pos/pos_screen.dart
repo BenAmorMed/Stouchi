@@ -169,9 +169,10 @@ class POSScreen extends ConsumerWidget {
                                       builder: (context) => CommentSelectionModal(
                                         article: article,
                                         initialComments: currentItem.comments,
-                                        onConfirm: (comments) => ref
+                                        initialQuantity: currentItem.quantity,
+                                        onConfirm: (quantity, comments) => ref
                                             .read(cartProvider.notifier)
-                                            .updateComments(article.id, comments),
+                                            .updateItem(article.id, quantity, comments),
                                       ),
                                     );
                                   }
@@ -213,9 +214,51 @@ class POSScreen extends ConsumerWidget {
                         final item = cart.items[index];
                         return ListTile(
                           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                          title: Text(item.articleName, style: const TextStyle(fontSize: 13)),
-                          subtitle: Text(item.comments.join(', '), style: const TextStyle(fontSize: 11)),
-                          trailing: Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
+                          onTap: () async {
+                            // Find article to get its config
+                            final articles = await ref.read(articlesProvider(selectedCategoryId!).future);
+                            final article = articles.firstWhere((a) => a.id == item.articleId);
+                            
+                            if (mounted) {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (context) => CommentSelectionModal(
+                                  article: article,
+                                  initialComments: item.comments,
+                                  initialQuantity: item.quantity,
+                                  onConfirm: (quantity, comments) => ref
+                                      .read(cartProvider.notifier)
+                                      .updateItem(item.articleId, quantity, comments),
+                                ),
+                              );
+                            }
+                          },
+                          title: Text(
+                            '${item.quantity} x ${item.articleName}',
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            item.comments.join(', '),
+                            style: const TextStyle(fontSize: 11, color: Colors.white60),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                '\$${(item.price * item.quantity).toStringAsFixed(2)}',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(width: 4),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Colors.redAccent),
+                                onPressed: () => ref.read(cartProvider.notifier).removeItem(item.articleId),
+                              ),
+                            ],
+                          ),
                         );
                       },
                     ),
@@ -253,6 +296,16 @@ class POSScreen extends ConsumerWidget {
                           ),
                           child: const Text('Checkout', style: TextStyle(fontSize: 14)),
                         ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: cart.items.isEmpty ? null : () => _quickSave(context, ref),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                            side: const BorderSide(color: AppTheme.primaryColor),
+                            foregroundColor: AppTheme.primaryColor,
+                          ),
+                          child: const Text('Quick Save & New', style: TextStyle(fontSize: 14)),
+                        ),
                       ],
                     ),
                   ),
@@ -263,6 +316,47 @@ class POSScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  void _quickSave(BuildContext context, WidgetRef ref) async {
+    final cart = ref.read(cartProvider);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surfaceColor,
+        title: const Text('Quick Save & New'),
+        content: Text('Are you sure you want to save this order of \$${cart.total.toStringAsFixed(2)} and start a new one?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Save Order'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      try {
+        final finalOrder = cart.copyWith(timestamp: DateTime.now(), tip: 0.0);
+        await ref.read(orderServiceProvider).completeOrder(finalOrder);
+        ref.read(cartProvider.notifier).clear();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Order saved successfully! 🚀')),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving order: $e')),
+          );
+        }
+      }
+    }
   }
 }
 
