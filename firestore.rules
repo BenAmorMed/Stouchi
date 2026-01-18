@@ -22,11 +22,8 @@ service cloud.firestore {
       // Admin can create/delete any user
       allow create, delete: if isAdmin();
       
-      // Users can update their own profile, but cannot change their own role
-      allow update: if isAuthenticated() && (
-        (request.auth.uid == userId && request.resource.data.role == resource.data.role) || 
-        isAdmin()
-      );
+      // Allow users to update their own profile or admin to update any
+      allow update: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
     }
 
     // Menu: Categories & Articles

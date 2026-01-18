@@ -82,20 +82,28 @@ class AuthService {
 
   // Complete onboarding flow
   Future<void> completeOnboarding(String name, String currentPassword, String newPassword) async {
-    await updateProfile(
-      name: name,
-      currentPassword: currentPassword,
-      newPassword: newPassword,
-    );
-    
-    // Set isFirstLogin to false
     final user = _auth.currentUser;
-    if (user != null) {
-      final doc = await _db.collection('users').doc(user.uid).get();
-      if (doc.exists) {
-        final userModel = UserModel.fromJson({...doc.data()!, 'id': doc.id});
-        await updateUser(userModel.copyWith(isFirstLogin: false));
-      }
+    if (user == null) throw Exception('No user logged in');
+
+    // 1. Re-authenticate
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: currentPassword,
+    );
+    await user.reauthenticateWithCredential(credential);
+
+    // 2. Update Password
+    await user.updatePassword(newPassword);
+    
+    // 3. Update Firestore (Single write for name and onboarding status)
+    final doc = await _db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      final userModel = UserModel.fromJson({...doc.data()!, 'id': doc.id});
+      final updatedModel = userModel.copyWith(
+        name: name,
+        isFirstLogin: false,
+      );
+      await updateUser(updatedModel);
     }
   }
 
