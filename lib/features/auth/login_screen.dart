@@ -24,8 +24,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     } catch (e) {
       if (mounted) {
+        String message = e.toString();
+        if (message.contains('invalid-email')) {
+          message = 'The email is not in the appropriate format.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(content: Text('Error: $message')),
         );
       }
     } finally {
