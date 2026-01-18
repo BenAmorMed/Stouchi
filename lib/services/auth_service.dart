@@ -111,4 +111,15 @@ class AuthService {
     );
     await _db.collection('users').doc(cred.user!.uid).set(userModel.toJson());
   }
+  // Skip onboarding (set isFirstLogin to false without changing credentials)
+  Future<void> skipOnboarding() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      final doc = await _db.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        final userModel = UserModel.fromJson({...doc.data()!, 'id': doc.id});
+        await updateUser(userModel.copyWith(isFirstLogin: false));
+      }
+    }
+  }
 }

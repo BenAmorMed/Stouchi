@@ -28,6 +28,19 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _currentPasswordController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _complete(WidgetRef ref) async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
     try {
       await ref.read(authServiceProvider).completeOnboarding(
         _nameController.text.trim(),
@@ -49,12 +62,39 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
     }
   }
 
+  Future<void> _skip() async {
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authServiceProvider).skipOnboarding();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error skipping: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        actions: [
+          TextButton.icon(
+            onPressed: () => ref.read(authServiceProvider).signOut(),
+            icon: const Icon(Icons.logout_rounded, color: Colors.redAccent),
+            label: const Text('Disconnect', style: TextStyle(color: Colors.redAccent)),
+          ),
+          const SizedBox(width: 8),
+        ],
+      ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: Form(
@@ -104,8 +144,6 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                       prefixIcon: Icon(Icons.lock_outline),
                     ),
                     obscureText: true,
-                    // If name is pre-filled, we still want a strong password, 
-                    // but the user might just want to keep their name.
                     validator: (val) => (val?.length ?? 0) < 6 ? 'Min 6 chars' : null,
                   ),
                   const SizedBox(height: 16),
@@ -121,16 +159,20 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
                   const SizedBox(height: 48),
                   if (_isLoading)
                     const CircularProgressIndicator()
-                  else
-                    Consumer(
-                      builder: (context, ref, child) => ElevatedButton(
-                        onPressed: () => _complete(ref),
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(56),
-                        ),
-                        child: const Text('Finish Setup'),
+                  else ...[
+                    ElevatedButton(
+                      onPressed: () => _complete(ref),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(56),
                       ),
+                      child: const Text('Finish Setup'),
                     ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: _skip,
+                      child: const Text('Skip for now', style: TextStyle(color: Colors.grey)),
+                    ),
+                  ],
                 ],
               ),
             ),
