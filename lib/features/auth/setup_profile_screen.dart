@@ -12,6 +12,7 @@ class SetupProfileScreen extends StatefulWidget {
 class _SetupProfileScreenState extends State<SetupProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _currentPasswordController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _isLoading = false;
@@ -19,6 +20,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    _currentPasswordController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -31,6 +33,7 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
     try {
       await ref.read(authServiceProvider).completeOnboarding(
         _nameController.text.trim(),
+        _currentPasswordController.text.trim(),
         _passwordController.text.trim(),
       );
       // Onboarding completes, profile updates, AuthWrapper will auto-redirect
@@ -79,6 +82,19 @@ class _SetupProfileScreenState extends State<SetupProfileScreen> {
                     ),
                     validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
                   ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: _currentPasswordController,
+                    decoration: const InputDecoration(
+                      labelText: 'Temporary Password',
+                      hintText: 'The password given by your administrator',
+                      prefixIcon: Icon(Icons.key_rounded),
+                    ),
+                    obscureText: true,
+                    validator: (val) => val?.isEmpty ?? true ? 'Required for verification' : null,
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _passwordController,

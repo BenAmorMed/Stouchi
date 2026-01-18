@@ -37,13 +37,20 @@ class AuthService {
   }
 
   // Complete onboarding flow
-  Future<void> completeOnboarding(String name, String password) async {
+  Future<void> completeOnboarding(String name, String currentPassword, String newPassword) async {
     final user = _auth.currentUser;
     if (user != null) {
-      // 1. Update Password
-      await user.updatePassword(password);
+      // 1. Re-authenticate (Sensitive operations like password change require recent login)
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+      await user.reauthenticateWithCredential(credential);
+
+      // 2. Update Password
+      await user.updatePassword(newPassword);
       
-      // 2. Update Firestore profile
+      // 3. Update Firestore profile
       final doc = await _db.collection('users').doc(user.uid).get();
       if (doc.exists) {
         final userModel = UserModel.fromJson({...doc.data()!, 'id': doc.id});

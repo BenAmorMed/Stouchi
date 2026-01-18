@@ -61,7 +61,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
 
         final newUser = UserModel(
           id: cred.user!.uid,
-          name: _nameController.text.trim(),
+          name: _nameController.text.trim().isEmpty ? '(vide)' : _nameController.text.trim(),
           email: _emailController.text.trim(),
           role: _role,
           isFirstLogin: true, 
@@ -76,7 +76,7 @@ class _UserFormScreenState extends State<UserFormScreen> {
       } else {
         // UPDATE EXISTING USER
         final updatedUser = widget.user!.copyWith(
-          name: _nameController.text.trim(),
+          name: _nameController.text.trim().isEmpty ? '(vide)' : _nameController.text.trim(),
           email: _emailController.text.trim(),
           role: _role,
         );
@@ -110,8 +110,10 @@ class _UserFormScreenState extends State<UserFormScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Name'),
-                validator: (val) => val?.isEmpty ?? true ? 'Required' : null,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  hintText: 'Optional - defaults to (vide)',
+                ),
               ),
               const SizedBox(height: 16),
               TextFormField(
