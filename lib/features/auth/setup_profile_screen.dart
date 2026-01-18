@@ -28,30 +28,20 @@ class _SetupProfileScreenState extends ConsumerState<SetupProfileScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _currentPasswordController.dispose();
-    _passwordController.dispose();
-    _confirmController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _complete(WidgetRef ref) async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
     try {
       await ref.read(authServiceProvider).completeOnboarding(
         _nameController.text.trim(),
         _currentPasswordController.text.trim(),
         _passwordController.text.trim(),
       );
-      // Onboarding completes, profile updates, AuthWrapper will auto-redirect
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
+        String message = e.toString();
+        if (message.contains('invalid-credential') || message.contains('wrong-password')) {
+          message = 'The temporary password you entered is incorrect. Please use the password given by your administrator.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Error: $message')),
         );
       }
     } finally {

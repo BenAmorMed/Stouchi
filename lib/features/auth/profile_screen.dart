@@ -68,10 +68,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         );
         Navigator.pop(context);
       }
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
+        String message = e.toString();
+        if (message.contains('invalid-credential') || message.contains('wrong-password')) {
+          message = 'The current password you entered is incorrect.';
+        }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Error: $message')),
         );
       }
     } finally {
