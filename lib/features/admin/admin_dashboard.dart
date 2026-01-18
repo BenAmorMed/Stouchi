@@ -14,7 +14,6 @@ class AdminDashboard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profile = ref.watch(userProfileProvider).value;
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
