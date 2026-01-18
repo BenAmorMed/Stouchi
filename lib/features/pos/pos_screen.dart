@@ -48,197 +48,216 @@ class POSScreen extends ConsumerWidget {
       ),
       body: Row(
         children: [
-          // 1. Categories Sidebar (Left)
-          Container(
-            width: 100,
-            color: AppTheme.surfaceColor,
-            child: categoriesAsync.when(
-              data: (categories) {
-                // Set initial category if none selected
-                if (selectedCategoryId == null && categories.isNotEmpty) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    ref.read(selectedCategoryIdProvider.notifier).state = categories[0].id;
-                  });
-                }
-                return ListView.builder(
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final isSelected = selectedCategoryId == category.id;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-                      child: InkWell(
-                        onTap: () => ref.read(selectedCategoryIdProvider.notifier).state = category.id,
-                        borderRadius: BorderRadius.circular(16),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor.withValues(alpha: 0.1),
-                              width: isSelected ? 2 : 1,
+          // 1. Categories Sidebar (Left) - Use Flexible instead of fixed width
+          Flexible(
+            flex: 2, // Relative width
+            child: Container(
+              color: AppTheme.surfaceColor,
+              child: categoriesAsync.when(
+                data: (categories) {
+                  // Set initial category if none selected
+                  if (selectedCategoryId == null && categories.isNotEmpty) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      ref.read(selectedCategoryIdProvider.notifier).state = categories[0].id;
+                    });
+                  }
+                  return ListView.builder(
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categories[index];
+                      final isSelected = selectedCategoryId == category.id;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+                        child: InkWell(
+                          onTap: () => ref.read(selectedCategoryIdProvider.notifier).state = category.id,
+                          borderRadius: BorderRadius.circular(16),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                            decoration: BoxDecoration(
+                              color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor.withValues(alpha: 0.1),
+                                width: isSelected ? 2 : 1,
+                              ),
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.category_rounded,
+                                  color: isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor,
+                                  size: 20,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  category.name,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                    color: isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.category_rounded,
-                                color: isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                category.name,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? AppTheme.primaryColor : AppTheme.mutedTextColor,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, s) => const Icon(Icons.error),
-            ),
-          ),
-
-          // 2. Articles Grid (Center)
-          Expanded(
-            child: selectedCategoryId == null
-                ? const Center(child: Text('Select a category'))
-                : ref.watch(articlesProvider(selectedCategoryId)).when(
-                      data: (articles) => GridView.builder(
-                        padding: const EdgeInsets.all(24), // Increased padding
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          childAspectRatio: 1.3, // Adjusted ratio
-                          crossAxisSpacing: 24, // Increased spacing
-                          mainAxisSpacing: 24,
-                        ),
-                        itemCount: articles.length,
-                        itemBuilder: (context, index) {
-                          final article = articles[index];
-                          final isInCart = cart.items.any((item) => item.articleId == article.id);
-                          
-                          return _ArticleCard(
-                            article: article,
-                            isSelected: isInCart,
-                            onTap: () => ref.read(cartProvider.notifier).toggleArticle(article),
-                            onLongPress: () {
-                              if (article.commentConfig.hasComments) {
-                                // Find item in cart or use default if adding via long press
-                                final currentItem = cart.items.firstWhere(
-                                  (i) => i.articleId == article.id,
-                                  orElse: () => OrderItemModel(
-                                    articleId: article.id,
-                                    articleName: article.name,
-                                    price: article.price,
-                                    comments: [article.commentConfig.defaultOption],
-                                  ),
-                                );
-                                
-                                // Automatically add if not in cart
-                                if (!isInCart) {
-                                  ref.read(cartProvider.notifier).toggleArticle(article);
-                                }
-
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent, // For custom shape
-                                  builder: (context) => CommentSelectionModal(
-                                    article: article,
-                                    initialComments: currentItem.comments,
-                                    onConfirm: (comments) => ref
-                                        .read(cartProvider.notifier)
-                                        .updateComments(article.id, comments),
-                                  ),
-                                );
-                              }
-                            },
-                          );
-                        },
-                      ),
-                      loading: () => const Center(child: CircularProgressIndicator()),
-                      error: (e, s) => Center(child: Text('Error: $e')),
-                    ),
-          ),
-
-          // 3. Order Sidebar (Right)
-          Container(
-            width: 350,
-            decoration: const BoxDecoration(
-              color: AppTheme.surfaceColor,
-              boxShadow: [
-                BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(-5, 0))
-              ],
-            ),
-            child: Column(
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(24.0),
-                  child: Text(
-                    'Current Order',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                const Divider(),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: cart.items.length,
-                    itemBuilder: (context, index) {
-                      final item = cart.items[index];
-                      return ListTile(
-                        title: Text(item.articleName),
-                        subtitle: Text(item.comments.join(', ')),
-                        trailing: Text('\$${item.price.toStringAsFixed(2)}'),
                       );
                     },
-                  ),
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Total', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                          Text(
-                            '\$${cart.total.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.primaryColor,
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, s) => const Icon(Icons.error),
+              ),
+            ),
+          ),
+
+          // 2. Articles Grid (Center) - Dynamic columns based on width
+          Expanded(
+            flex: 8,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Determine number of columns based on width
+                final columns = constraints.maxWidth > 800 ? 4 : (constraints.maxWidth > 500 ? 3 : 2);
+                
+                return selectedCategoryId == null
+                    ? const Center(child: Text('Select a category'))
+                    : ref.watch(articlesProvider(selectedCategoryId)).when(
+                          data: (articles) => GridView.builder(
+                            padding: const EdgeInsets.all(16),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: columns,
+                              childAspectRatio: 1.2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
                             ),
+                            itemCount: articles.length,
+                            itemBuilder: (context, index) {
+                              final article = articles[index];
+                              final isInCart = cart.items.any((item) => item.articleId == article.id);
+                              
+                              return _ArticleCard(
+                                article: article,
+                                isSelected: isInCart,
+                                onTap: () => ref.read(cartProvider.notifier).toggleArticle(article),
+                                onLongPress: () {
+                                  if (article.commentConfig.hasComments) {
+                                    final currentItem = cart.items.firstWhere(
+                                      (i) => i.articleId == article.id,
+                                      orElse: () => OrderItemModel(
+                                        articleId: article.id,
+                                        articleName: article.name,
+                                        price: article.price,
+                                        comments: [article.commentConfig.defaultOption],
+                                      ),
+                                    );
+                                    
+                                    if (!isInCart) {
+                                      ref.read(cartProvider.notifier).toggleArticle(article);
+                                    }
+
+                                    showModalBottomSheet(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (context) => CommentSelectionModal(
+                                        article: article,
+                                        initialComments: currentItem.comments,
+                                        onConfirm: (comments) => ref
+                                            .read(cartProvider.notifier)
+                                            .updateComments(article.id, comments),
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
+                            },
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: cart.items.isEmpty
-                            ? null
-                            : () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => const CheckoutScreen()),
-                                ),
-                        child: const Text('Checkout'),
-                      ),
-                    ],
+                          loading: () => const Center(child: CircularProgressIndicator()),
+                          error: (e, s) => Center(child: Text('Error: $e')),
+                        );
+              },
+            ),
+          ),
+
+          // 3. Order Sidebar (Right) - Flexible width
+          Flexible(
+            flex: 5,
+            child: Container(
+              decoration: const BoxDecoration(
+                color: AppTheme.surfaceColor,
+                boxShadow: [
+                  BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(-5, 0))
+                ],
+              ),
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                    child: Text(
+                      'Current Order',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-              ],
+                  const Divider(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: cart.items.length,
+                      itemBuilder: (context, index) {
+                        final item = cart.items[index];
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                          title: Text(item.articleName, style: const TextStyle(fontSize: 13)),
+                          subtitle: Text(item.comments.join(', '), style: const TextStyle(fontSize: 11)),
+                          trailing: Text('\$${item.price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
+                        );
+                      },
+                    ),
+                  ),
+                  const Divider(),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Total', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                            Text(
+                              '\$${cart.total.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: cart.items.isEmpty
+                              ? null
+                              : () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => const CheckoutScreen()),
+                                  ),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(48),
+                            padding: EdgeInsets.zero,
+                          ),
+                          child: const Text('Checkout', style: TextStyle(fontSize: 14)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
