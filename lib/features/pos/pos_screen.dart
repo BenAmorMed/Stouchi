@@ -8,7 +8,6 @@ import '../statistics/server_statistics_screen.dart';
 import '../../core/models/article_model.dart';
 import '../../core/models/order_item_model.dart';
 import '../auth/profile_screen.dart';
-import '../auth/setup_profile_screen.dart';
 import '../auth/auth_provider.dart';
 import '../../core/models/user_role.dart';
 
@@ -21,19 +20,6 @@ class POSScreen extends ConsumerWidget {
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final cart = ref.watch(cartProvider);
     final profile = ref.watch(userProfileProvider).value;
-
-    // Non-blocking onboarding prompt
-    if (profile != null && profile.isFirstLogin && profile.role != UserRole.admin) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false, // Force them to at least see it
-          builder: (context) => Dialog.fullscreen(
-            child: const SetupProfileScreen(),
-          ),
-        );
-      });
-    }
 
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
