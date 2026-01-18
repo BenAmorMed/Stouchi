@@ -111,6 +111,16 @@ class AuthService {
     );
     await _db.collection('users').doc(cred.user!.uid).set(userModel.toJson());
   }
+  // Send password reset email
+  Future<void> sendPasswordResetEmail(String email) async {
+    await _auth.sendPasswordResetEmail(email: email);
+  }
+
+  // Reset user to "First Login" state
+  Future<void> resetUserOnboarding(String uid) async {
+    await _db.collection('users').doc(uid).update({'isFirstLogin': true});
+  }
+
   // Skip onboarding (set isFirstLogin to false without changing credentials)
   Future<void> skipOnboarding() async {
     final user = _auth.currentUser;
