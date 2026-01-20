@@ -1,0 +1,24 @@
+﻿Analyzing stouchi...                                            
+
+warning - Unused import: 'stock_batch.dart' - lib\core\models\article_model.dart:3:8 - unused_import
+  error - The getter 'isRequired' isn't defined for the type 'CommentConfig' - lib\features\admin\article_form_screen.dart:245:39 - undefined_getter
+  error - The named parameter 'isRequired' isn't defined - lib\features\admin\article_form_screen.dart:246:93 - undefined_named_parameter
+  error - There's no constant named 'none' in 'CommentType' - lib\features\admin\article_form_screen.dart:249:61 - undefined_enum_constant
+  error - The getter 'isStockTracked' isn't defined for the type 'ArticleModel' - lib\features\admin\article_management_screen.dart:99:47 - undefined_getter
+  error - The named parameter 'product' is required, but there's no corresponding argument - lib\features\admin\article_management_screen.dart:105:63 - missing_required_argument
+  error - The named parameter 'article' isn't defined - lib\features\admin\article_management_screen.dart:105:76 - undefined_named_parameter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\admin\stock\inventory_screen.dart:75:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\admin\stock\inventory_screen.dart:75:98 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\features\admin\stock\inventory_screen.dart:150:19 - deprecated_member_use
+warning - Unused import: '../../../../core/models/article_model.dart' - lib\features\admin\widgets\ingredient_selector.dart:4:8 - unused_import
+  error - The argument type 'double' can't be assigned to the parameter type 'int'.  - lib\features\pos\pos_screen.dart:464:39 - argument_type_not_assignable
+  error - The getter 'isStockTracked' isn't defined for the type 'ArticleModel' - lib\features\pos\pos_screen.dart:466:40 - undefined_getter
+  error - The getter 'stockQuantity' isn't defined for the type 'ArticleModel' - lib\features\pos\pos_screen.dart:467:64 - undefined_getter
+  error - The getter 'isStockTracked' isn't defined for the type 'ArticleModel' - lib\features\pos\pos_screen.dart:501:48 - undefined_getter
+  error - The getter 'stockQuantity' isn't defined for the type 'ArticleModel' - lib\features\pos\pos_screen.dart:501:85 - undefined_getter
+  error - The getter 'stockQuantity' isn't defined for the type 'ArticleModel' - lib\features\pos\pos_screen.dart:504:99 - undefined_getter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\pos\pos_screen.dart:605:75 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\pos\pos_screen.dart:611:45 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\pos\pos_screen.dart:632:57 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\pos\pos_screen.dart:664:66 - deprecated_member_use
+

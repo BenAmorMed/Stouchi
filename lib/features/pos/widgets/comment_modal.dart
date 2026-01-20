@@ -6,8 +6,8 @@ import '../../../core/theme/app_theme.dart';
 class CommentSelectionModal extends StatefulWidget {
   final ArticleModel article;
   final List<String> initialComments;
-  final int initialQuantity;
-  final Function(int quantity, List<String> comments) onConfirm;
+  final double initialQuantity;
+  final Function(double quantity, List<String> comments) onConfirm;
 
   const CommentSelectionModal({
     super.key,
@@ -24,7 +24,7 @@ class CommentSelectionModal extends StatefulWidget {
 class _CommentSelectionModalState extends State<CommentSelectionModal> {
   late List<String> _selectedComments;
   late TextEditingController _customCommentController;
-  late int _quantity;
+  late double _quantity;
 
   @override
   void initState() {
@@ -81,11 +81,13 @@ class _CommentSelectionModalState extends State<CommentSelectionModal> {
                     IconButton(
                       icon: const Icon(Icons.remove_rounded, color: AppTheme.primaryColor),
                       onPressed: () => setState(() {
-                        if (_quantity > 1) _quantity--;
+                        if (_quantity > 1) {
+                           _quantity = (_quantity - 1 < 1) ? 1 : _quantity - 1;
+                        }
                       }),
                     ),
                     Text(
-                      '$_quantity',
+                      _quantity % 1 == 0 ? _quantity.toInt().toString() : _quantity.toString(),
                       style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     IconButton(

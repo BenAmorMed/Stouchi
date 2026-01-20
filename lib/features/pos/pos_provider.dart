@@ -1,10 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../services/order_service.dart';
 import '../../core/models/article_model.dart';
 import '../../core/models/category_model.dart';
 import '../../core/models/order_item_model.dart';
 import '../../core/models/order_model.dart';
+import '../../core/models/table_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../auth/auth_provider.dart';
+
+// Order Service Provider
+final orderServiceProvider = Provider((ref) => OrderService());
 
 // Stream of Categories
 final categoriesProvider = StreamProvider<List<CategoryModel>>((ref) {
@@ -12,9 +18,17 @@ final categoriesProvider = StreamProvider<List<CategoryModel>>((ref) {
       .collection('categories')
       .orderBy('orderIndex')
       .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => CategoryModel.fromJson({...doc.data(), 'id': doc.id}))
-          .toList());
+      .map((snapshot) {
+        final categories = <CategoryModel>[];
+        for (final doc in snapshot.docs) {
+          try {
+            categories.add(CategoryModel.fromJson({...doc.data(), 'id': doc.id}));
+          } catch (e) {
+            debugPrint('Error parsing category ${doc.id}: $e');
+          }
+        }
+        return categories;
+      });
 });
 
 // Stream of Articles for a specific category
@@ -23,9 +37,18 @@ final articlesProvider = StreamProvider.family<List<ArticleModel>, String>((ref,
       .collection('articles')
       .where('categoryId', isEqualTo: categoryId)
       .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => ArticleModel.fromJson({...doc.data(), 'id': doc.id}))
-          .toList());
+      .map((snapshot) {
+        final articles = <ArticleModel>[];
+        for (final doc in snapshot.docs) {
+          try {
+            articles.add(ArticleModel.fromJson({...doc.data(), 'id': doc.id}));
+          } catch (e) {
+            // Log the error but keep going with other articles
+            debugPrint('Error parsing article ${doc.id}: $e');
+          }
+        }
+        return articles;
+      });
 });
 
 // Selected Category State
@@ -72,7 +95,7 @@ class CartNotifier extends StateNotifier<OrderModel> {
     _updateState(newItems);
   }
 
-  void updateItem(String articleId, int quantity, List<String> comments) {
+  void updateItem(String articleId, double quantity, List<String> comments) {
     final newItems = state.items.map((item) {
       if (item.articleId == articleId) {
         return item.copyWith(quantity: quantity, comments: comments);
@@ -91,8 +114,8 @@ class CartNotifier extends StateNotifier<OrderModel> {
     state = state.copyWith(items: [], total: 0.0, tableName: null, tableId: null);
   }
 
-  void setTable(String? name) {
-    state = state.copyWith(tableName: name, tableId: name); // Simple ID for now
+  void setTable(TableModel? table) {
+    state = state.copyWith(tableName: table?.name, tableId: table?.id);
   }
 
   void loadOrder(OrderModel order) {

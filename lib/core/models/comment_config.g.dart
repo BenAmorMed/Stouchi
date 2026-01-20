@@ -11,7 +11,8 @@ _$CommentConfigImpl _$$CommentConfigImplFromJson(Map<String, dynamic> json) =>
       hasComments: json['hasComments'] as bool? ?? false,
       commentType:
           $enumDecodeNullable(_$CommentTypeEnumMap, json['commentType']) ??
-          CommentType.list,
+          CommentType.none,
+      isRequired: json['isRequired'] as bool? ?? false,
       commentOptions:
           (json['commentOptions'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -25,12 +26,14 @@ Map<String, dynamic> _$$CommentConfigImplToJson(_$CommentConfigImpl instance) =>
     <String, dynamic>{
       'hasComments': instance.hasComments,
       'commentType': _$CommentTypeEnumMap[instance.commentType]!,
+      'isRequired': instance.isRequired,
       'commentOptions': instance.commentOptions,
       'defaultOption': instance.defaultOption,
       'maxLength': instance.maxLength,
     };
 
 const _$CommentTypeEnumMap = {
+  CommentType.none: 'none',
   CommentType.list: 'list',
   CommentType.text: 'text',
   CommentType.both: 'both',

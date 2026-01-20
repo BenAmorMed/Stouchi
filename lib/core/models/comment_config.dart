@@ -4,6 +4,7 @@ part 'comment_config.freezed.dart';
 part 'comment_config.g.dart';
 
 enum CommentType {
+  none,
   list,
   text,
   both,
@@ -13,7 +14,8 @@ enum CommentType {
 class CommentConfig with _$CommentConfig {
   const factory CommentConfig({
     @Default(false) bool hasComments,
-    @Default(CommentType.list) CommentType commentType,
+    @Default(CommentType.none) CommentType commentType,
+    @Default(false) bool isRequired,
     @Default([]) List<String> commentOptions,
     @Default('normal') String defaultOption,
     @Default(50) int maxLength,

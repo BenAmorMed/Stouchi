@@ -9,7 +9,8 @@ class OrderItemModel with _$OrderItemModel {
     required String articleId,
     required String articleName,
     required double price,
-    @Default(1) int quantity,
+    @Default(1.0) double quantity, // Changed from int to double
+    @Default(0.0) double costPrice, // For profit calculation (FIFO based)
     @Default([]) List<String> comments,
   }) = _OrderItemModel;
 

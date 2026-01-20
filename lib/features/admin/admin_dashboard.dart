@@ -8,6 +8,9 @@ import 'article_management_screen.dart';
 import 'user_management_screen.dart';
 import '../statistics/admin_statistics_screen.dart';
 import '../auth/profile_screen.dart';
+import 'calendar/admin_calendar_screen.dart';
+import 'stock/inventory_screen.dart';
+import 'tables/table_layout_screen.dart';
 
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});
@@ -102,6 +105,16 @@ class AdminDashboard extends ConsumerWidget {
                   ),
                 ),
                 _AdminCard(
+                  title: 'Inventory',
+                  subtitle: 'Levels & Refills',
+                  icon: Icons.inventory_rounded,
+                  color: Colors.teal,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const InventoryScreen()),
+                  ),
+                ),
+                _AdminCard(
                   title: 'My Profile',
                   subtitle: 'Account settings',
                   icon: Icons.manage_accounts_rounded,
@@ -109,6 +122,26 @@ class AdminDashboard extends ConsumerWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                  ),
+                ),
+                _AdminCard(
+                  title: 'Worker Schedule',
+                  subtitle: 'Shifts & Calendar',
+                  icon: Icons.calendar_month,
+                  color: Colors.purple,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AdminCalendarScreen()),
+                  ),
+                ),
+                _AdminCard(
+                  title: 'Table Layout',
+                  subtitle: 'Map & Shapes',
+                  icon: Icons.table_restaurant_rounded,
+                  color: Colors.brown,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const TableLayoutScreen()),
                   ),
                 ),
               ],

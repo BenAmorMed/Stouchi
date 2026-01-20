@@ -24,7 +24,10 @@ mixin _$OrderItemModel {
   String get articleId => throw _privateConstructorUsedError;
   String get articleName => throw _privateConstructorUsedError;
   double get price => throw _privateConstructorUsedError;
-  int get quantity => throw _privateConstructorUsedError;
+  double get quantity =>
+      throw _privateConstructorUsedError; // Changed from int to double
+  double get costPrice =>
+      throw _privateConstructorUsedError; // For profit calculation (FIFO based)
   List<String> get comments => throw _privateConstructorUsedError;
 
   /// Serializes this OrderItemModel to a JSON map.
@@ -48,7 +51,8 @@ abstract class $OrderItemModelCopyWith<$Res> {
     String articleId,
     String articleName,
     double price,
-    int quantity,
+    double quantity,
+    double costPrice,
     List<String> comments,
   });
 }
@@ -72,6 +76,7 @@ class _$OrderItemModelCopyWithImpl<$Res, $Val extends OrderItemModel>
     Object? articleName = null,
     Object? price = null,
     Object? quantity = null,
+    Object? costPrice = null,
     Object? comments = null,
   }) {
     return _then(
@@ -91,7 +96,11 @@ class _$OrderItemModelCopyWithImpl<$Res, $Val extends OrderItemModel>
             quantity: null == quantity
                 ? _value.quantity
                 : quantity // ignore: cast_nullable_to_non_nullable
-                      as int,
+                      as double,
+            costPrice: null == costPrice
+                ? _value.costPrice
+                : costPrice // ignore: cast_nullable_to_non_nullable
+                      as double,
             comments: null == comments
                 ? _value.comments
                 : comments // ignore: cast_nullable_to_non_nullable
@@ -115,7 +124,8 @@ abstract class _$$OrderItemModelImplCopyWith<$Res>
     String articleId,
     String articleName,
     double price,
-    int quantity,
+    double quantity,
+    double costPrice,
     List<String> comments,
   });
 }
@@ -138,6 +148,7 @@ class __$$OrderItemModelImplCopyWithImpl<$Res>
     Object? articleName = null,
     Object? price = null,
     Object? quantity = null,
+    Object? costPrice = null,
     Object? comments = null,
   }) {
     return _then(
@@ -157,7 +168,11 @@ class __$$OrderItemModelImplCopyWithImpl<$Res>
         quantity: null == quantity
             ? _value.quantity
             : quantity // ignore: cast_nullable_to_non_nullable
-                  as int,
+                  as double,
+        costPrice: null == costPrice
+            ? _value.costPrice
+            : costPrice // ignore: cast_nullable_to_non_nullable
+                  as double,
         comments: null == comments
             ? _value._comments
             : comments // ignore: cast_nullable_to_non_nullable
@@ -174,7 +189,8 @@ class _$OrderItemModelImpl implements _OrderItemModel {
     required this.articleId,
     required this.articleName,
     required this.price,
-    this.quantity = 1,
+    this.quantity = 1.0,
+    this.costPrice = 0.0,
     final List<String> comments = const [],
   }) : _comments = comments;
 
@@ -189,8 +205,14 @@ class _$OrderItemModelImpl implements _OrderItemModel {
   final double price;
   @override
   @JsonKey()
-  final int quantity;
+  final double quantity;
+  // Changed from int to double
+  @override
+  @JsonKey()
+  final double costPrice;
+  // For profit calculation (FIFO based)
   final List<String> _comments;
+  // For profit calculation (FIFO based)
   @override
   @JsonKey()
   List<String> get comments {
@@ -201,7 +223,7 @@ class _$OrderItemModelImpl implements _OrderItemModel {
 
   @override
   String toString() {
-    return 'OrderItemModel(articleId: $articleId, articleName: $articleName, price: $price, quantity: $quantity, comments: $comments)';
+    return 'OrderItemModel(articleId: $articleId, articleName: $articleName, price: $price, quantity: $quantity, costPrice: $costPrice, comments: $comments)';
   }
 
   @override
@@ -216,6 +238,8 @@ class _$OrderItemModelImpl implements _OrderItemModel {
             (identical(other.price, price) || other.price == price) &&
             (identical(other.quantity, quantity) ||
                 other.quantity == quantity) &&
+            (identical(other.costPrice, costPrice) ||
+                other.costPrice == costPrice) &&
             const DeepCollectionEquality().equals(other._comments, _comments));
   }
 
@@ -227,6 +251,7 @@ class _$OrderItemModelImpl implements _OrderItemModel {
     articleName,
     price,
     quantity,
+    costPrice,
     const DeepCollectionEquality().hash(_comments),
   );
 
@@ -252,7 +277,8 @@ abstract class _OrderItemModel implements OrderItemModel {
     required final String articleId,
     required final String articleName,
     required final double price,
-    final int quantity,
+    final double quantity,
+    final double costPrice,
     final List<String> comments,
   }) = _$OrderItemModelImpl;
 
@@ -266,7 +292,9 @@ abstract class _OrderItemModel implements OrderItemModel {
   @override
   double get price;
   @override
-  int get quantity;
+  double get quantity; // Changed from int to double
+  @override
+  double get costPrice; // For profit calculation (FIFO based)
   @override
   List<String> get comments;
 

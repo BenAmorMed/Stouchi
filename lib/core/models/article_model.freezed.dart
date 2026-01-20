@@ -27,6 +27,11 @@ mixin _$ArticleModel {
   String get categoryId => throw _privateConstructorUsedError;
   CommentConfig get commentConfig => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
+  double get totalProfit =>
+      throw _privateConstructorUsedError; // Lifetime profit from sales
+  bool get isComposite =>
+      throw _privateConstructorUsedError; // true if it has multiple ingredients
+  List<RecipeIngredient> get recipe => throw _privateConstructorUsedError;
 
   /// Serializes this ArticleModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -52,6 +57,9 @@ abstract class $ArticleModelCopyWith<$Res> {
     String categoryId,
     CommentConfig commentConfig,
     String? imageUrl,
+    double totalProfit,
+    bool isComposite,
+    List<RecipeIngredient> recipe,
   });
 
   $CommentConfigCopyWith<$Res> get commentConfig;
@@ -78,6 +86,9 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
     Object? categoryId = null,
     Object? commentConfig = null,
     Object? imageUrl = freezed,
+    Object? totalProfit = null,
+    Object? isComposite = null,
+    Object? recipe = null,
   }) {
     return _then(
       _value.copyWith(
@@ -105,6 +116,18 @@ class _$ArticleModelCopyWithImpl<$Res, $Val extends ArticleModel>
                 ? _value.imageUrl
                 : imageUrl // ignore: cast_nullable_to_non_nullable
                       as String?,
+            totalProfit: null == totalProfit
+                ? _value.totalProfit
+                : totalProfit // ignore: cast_nullable_to_non_nullable
+                      as double,
+            isComposite: null == isComposite
+                ? _value.isComposite
+                : isComposite // ignore: cast_nullable_to_non_nullable
+                      as bool,
+            recipe: null == recipe
+                ? _value.recipe
+                : recipe // ignore: cast_nullable_to_non_nullable
+                      as List<RecipeIngredient>,
           )
           as $Val,
     );
@@ -137,6 +160,9 @@ abstract class _$$ArticleModelImplCopyWith<$Res>
     String categoryId,
     CommentConfig commentConfig,
     String? imageUrl,
+    double totalProfit,
+    bool isComposite,
+    List<RecipeIngredient> recipe,
   });
 
   @override
@@ -163,6 +189,9 @@ class __$$ArticleModelImplCopyWithImpl<$Res>
     Object? categoryId = null,
     Object? commentConfig = null,
     Object? imageUrl = freezed,
+    Object? totalProfit = null,
+    Object? isComposite = null,
+    Object? recipe = null,
   }) {
     return _then(
       _$ArticleModelImpl(
@@ -190,6 +219,18 @@ class __$$ArticleModelImplCopyWithImpl<$Res>
             ? _value.imageUrl
             : imageUrl // ignore: cast_nullable_to_non_nullable
                   as String?,
+        totalProfit: null == totalProfit
+            ? _value.totalProfit
+            : totalProfit // ignore: cast_nullable_to_non_nullable
+                  as double,
+        isComposite: null == isComposite
+            ? _value.isComposite
+            : isComposite // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        recipe: null == recipe
+            ? _value._recipe
+            : recipe // ignore: cast_nullable_to_non_nullable
+                  as List<RecipeIngredient>,
       ),
     );
   }
@@ -205,7 +246,10 @@ class _$ArticleModelImpl implements _ArticleModel {
     required this.categoryId,
     this.commentConfig = const CommentConfig(),
     this.imageUrl,
-  });
+    this.totalProfit = 0.0,
+    this.isComposite = false,
+    final List<RecipeIngredient> recipe = const [],
+  }) : _recipe = recipe;
 
   factory _$ArticleModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$ArticleModelImplFromJson(json);
@@ -223,10 +267,27 @@ class _$ArticleModelImpl implements _ArticleModel {
   final CommentConfig commentConfig;
   @override
   final String? imageUrl;
+  @override
+  @JsonKey()
+  final double totalProfit;
+  // Lifetime profit from sales
+  @override
+  @JsonKey()
+  final bool isComposite;
+  // true if it has multiple ingredients
+  final List<RecipeIngredient> _recipe;
+  // true if it has multiple ingredients
+  @override
+  @JsonKey()
+  List<RecipeIngredient> get recipe {
+    if (_recipe is EqualUnmodifiableListView) return _recipe;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_recipe);
+  }
 
   @override
   String toString() {
-    return 'ArticleModel(id: $id, name: $name, price: $price, categoryId: $categoryId, commentConfig: $commentConfig, imageUrl: $imageUrl)';
+    return 'ArticleModel(id: $id, name: $name, price: $price, categoryId: $categoryId, commentConfig: $commentConfig, imageUrl: $imageUrl, totalProfit: $totalProfit, isComposite: $isComposite, recipe: $recipe)';
   }
 
   @override
@@ -242,7 +303,12 @@ class _$ArticleModelImpl implements _ArticleModel {
             (identical(other.commentConfig, commentConfig) ||
                 other.commentConfig == commentConfig) &&
             (identical(other.imageUrl, imageUrl) ||
-                other.imageUrl == imageUrl));
+                other.imageUrl == imageUrl) &&
+            (identical(other.totalProfit, totalProfit) ||
+                other.totalProfit == totalProfit) &&
+            (identical(other.isComposite, isComposite) ||
+                other.isComposite == isComposite) &&
+            const DeepCollectionEquality().equals(other._recipe, _recipe));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -255,6 +321,9 @@ class _$ArticleModelImpl implements _ArticleModel {
     categoryId,
     commentConfig,
     imageUrl,
+    totalProfit,
+    isComposite,
+    const DeepCollectionEquality().hash(_recipe),
   );
 
   /// Create a copy of ArticleModel
@@ -279,6 +348,9 @@ abstract class _ArticleModel implements ArticleModel {
     required final String categoryId,
     final CommentConfig commentConfig,
     final String? imageUrl,
+    final double totalProfit,
+    final bool isComposite,
+    final List<RecipeIngredient> recipe,
   }) = _$ArticleModelImpl;
 
   factory _ArticleModel.fromJson(Map<String, dynamic> json) =
@@ -296,6 +368,12 @@ abstract class _ArticleModel implements ArticleModel {
   CommentConfig get commentConfig;
   @override
   String? get imageUrl;
+  @override
+  double get totalProfit; // Lifetime profit from sales
+  @override
+  bool get isComposite; // true if it has multiple ingredients
+  @override
+  List<RecipeIngredient> get recipe;
 
   /// Create a copy of ArticleModel
   /// with the given fields replaced by the non-null parameter values.

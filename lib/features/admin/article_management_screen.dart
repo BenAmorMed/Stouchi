@@ -36,39 +36,91 @@ class ArticleManagementScreen extends ConsumerWidget {
       body: selectedCategoryId == null
           ? const Center(child: Text('Select a category to view articles'))
           : ref.watch(articlesProvider(selectedCategoryId)).when(
-                data: (articles) => ListView.builder(
-                  itemCount: articles.length,
-                  itemBuilder: (context, index) {
-                    final article = articles[index];
-                    return ListTile(
-                      title: Text(article.name),
-                      subtitle: Text('\$${article.price.toStringAsFixed(2)}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            onPressed: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ArticleFormScreen(article: article),
+                data: (articles) {
+                  final totalProfit = articles.fold(0.0, (acc, a) => acc + a.totalProfit);
+                  final totalItems = articles.length;
+                  
+                  return Column(
+                    children: [
+                       Padding(
+                         padding: const EdgeInsets.all(16.0),
+                         child: Card(
+                           color: AppTheme.surfaceColor,
+                           child: Padding(
+                             padding: const EdgeInsets.all(16.0),
+                             child: Row(
+                               mainAxisAlignment: MainAxisAlignment.spaceAround,
+                               children: [
+                                 Column(
+                                   children: [
+                                     const Text('Articles', style: TextStyle(color: Colors.grey)),
+                                     Text('$totalItems', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                                   ],
+                                 ),
+                                 Column(
+                                   children: [
+                                     const Text('Category Profit', style: TextStyle(color: Colors.grey)),
+                                     Text('\$${totalProfit.toStringAsFixed(2)}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.green)),
+                                   ],
+                                 ),
+                               ],
+                             ),
+                           ),
+                         ),
+                       ),
+                       Expanded(
+                         child: ListView.builder(
+                          itemCount: articles.length,
+                          itemBuilder: (context, index) {
+                            final article = articles[index];
+                            return ListTile(
+                              title: Text(article.name),
+                              subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('\$${article.price.toStringAsFixed(2)}'),
+                                    if (article.isComposite)
+                                      const Text(
+                                        'Tracks Stock',
+                                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 10),
+                                      ),
+                                    if (article.totalProfit > 0)
+                                       Text(
+                                        'Profit: \$${article.totalProfit.toStringAsFixed(2)}',
+                                        style: const TextStyle(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 12),
+                                      ),
+                                  ],
                               ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () async {
-                              await FirebaseFirestore.instance
-                                  .collection('articles')
-                                  .doc(article.id)
-                                  .delete();
-                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit, color: Colors.blue),
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ArticleFormScreen(article: article),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      await FirebaseFirestore.instance
+                                          .collection('articles')
+                                          .doc(article.id)
+                                          .delete();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                                         ),
+                       ),
+                    ],
+                  );
+                },
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, s) => Center(child: Text('Error: $e')),
               ),

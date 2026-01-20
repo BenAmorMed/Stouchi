@@ -23,6 +23,7 @@ CommentConfig _$CommentConfigFromJson(Map<String, dynamic> json) {
 mixin _$CommentConfig {
   bool get hasComments => throw _privateConstructorUsedError;
   CommentType get commentType => throw _privateConstructorUsedError;
+  bool get isRequired => throw _privateConstructorUsedError;
   List<String> get commentOptions => throw _privateConstructorUsedError;
   String get defaultOption => throw _privateConstructorUsedError;
   int get maxLength => throw _privateConstructorUsedError;
@@ -47,6 +48,7 @@ abstract class $CommentConfigCopyWith<$Res> {
   $Res call({
     bool hasComments,
     CommentType commentType,
+    bool isRequired,
     List<String> commentOptions,
     String defaultOption,
     int maxLength,
@@ -70,6 +72,7 @@ class _$CommentConfigCopyWithImpl<$Res, $Val extends CommentConfig>
   $Res call({
     Object? hasComments = null,
     Object? commentType = null,
+    Object? isRequired = null,
     Object? commentOptions = null,
     Object? defaultOption = null,
     Object? maxLength = null,
@@ -84,6 +87,10 @@ class _$CommentConfigCopyWithImpl<$Res, $Val extends CommentConfig>
                 ? _value.commentType
                 : commentType // ignore: cast_nullable_to_non_nullable
                       as CommentType,
+            isRequired: null == isRequired
+                ? _value.isRequired
+                : isRequired // ignore: cast_nullable_to_non_nullable
+                      as bool,
             commentOptions: null == commentOptions
                 ? _value.commentOptions
                 : commentOptions // ignore: cast_nullable_to_non_nullable
@@ -114,6 +121,7 @@ abstract class _$$CommentConfigImplCopyWith<$Res>
   $Res call({
     bool hasComments,
     CommentType commentType,
+    bool isRequired,
     List<String> commentOptions,
     String defaultOption,
     int maxLength,
@@ -136,6 +144,7 @@ class __$$CommentConfigImplCopyWithImpl<$Res>
   $Res call({
     Object? hasComments = null,
     Object? commentType = null,
+    Object? isRequired = null,
     Object? commentOptions = null,
     Object? defaultOption = null,
     Object? maxLength = null,
@@ -150,6 +159,10 @@ class __$$CommentConfigImplCopyWithImpl<$Res>
             ? _value.commentType
             : commentType // ignore: cast_nullable_to_non_nullable
                   as CommentType,
+        isRequired: null == isRequired
+            ? _value.isRequired
+            : isRequired // ignore: cast_nullable_to_non_nullable
+                  as bool,
         commentOptions: null == commentOptions
             ? _value._commentOptions
             : commentOptions // ignore: cast_nullable_to_non_nullable
@@ -172,7 +185,8 @@ class __$$CommentConfigImplCopyWithImpl<$Res>
 class _$CommentConfigImpl implements _CommentConfig {
   const _$CommentConfigImpl({
     this.hasComments = false,
-    this.commentType = CommentType.list,
+    this.commentType = CommentType.none,
+    this.isRequired = false,
     final List<String> commentOptions = const [],
     this.defaultOption = 'normal',
     this.maxLength = 50,
@@ -187,6 +201,9 @@ class _$CommentConfigImpl implements _CommentConfig {
   @override
   @JsonKey()
   final CommentType commentType;
+  @override
+  @JsonKey()
+  final bool isRequired;
   final List<String> _commentOptions;
   @override
   @JsonKey()
@@ -205,7 +222,7 @@ class _$CommentConfigImpl implements _CommentConfig {
 
   @override
   String toString() {
-    return 'CommentConfig(hasComments: $hasComments, commentType: $commentType, commentOptions: $commentOptions, defaultOption: $defaultOption, maxLength: $maxLength)';
+    return 'CommentConfig(hasComments: $hasComments, commentType: $commentType, isRequired: $isRequired, commentOptions: $commentOptions, defaultOption: $defaultOption, maxLength: $maxLength)';
   }
 
   @override
@@ -217,6 +234,8 @@ class _$CommentConfigImpl implements _CommentConfig {
                 other.hasComments == hasComments) &&
             (identical(other.commentType, commentType) ||
                 other.commentType == commentType) &&
+            (identical(other.isRequired, isRequired) ||
+                other.isRequired == isRequired) &&
             const DeepCollectionEquality().equals(
               other._commentOptions,
               _commentOptions,
@@ -233,6 +252,7 @@ class _$CommentConfigImpl implements _CommentConfig {
     runtimeType,
     hasComments,
     commentType,
+    isRequired,
     const DeepCollectionEquality().hash(_commentOptions),
     defaultOption,
     maxLength,
@@ -256,6 +276,7 @@ abstract class _CommentConfig implements CommentConfig {
   const factory _CommentConfig({
     final bool hasComments,
     final CommentType commentType,
+    final bool isRequired,
     final List<String> commentOptions,
     final String defaultOption,
     final int maxLength,
@@ -268,6 +289,8 @@ abstract class _CommentConfig implements CommentConfig {
   bool get hasComments;
   @override
   CommentType get commentType;
+  @override
+  bool get isRequired;
   @override
   List<String> get commentOptions;
   @override

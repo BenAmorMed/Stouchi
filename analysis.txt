@@ -1,0 +1,5 @@
+Analyzing stouchi...                                            
+
+  error - The method 'ArticleFormScreen' isn't defined for the type '_InventoryScreenState' - lib\features\admin\stock\inventory_screen.dart:115:51 - undefined_method
+  error - The name 'ArticleFormScreen' isn't a class - lib\features\admin\stock\inventory_screen.dart:135:41 - creation_with_non_type
+

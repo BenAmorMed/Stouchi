@@ -1,0 +1,2 @@
+[error] Undefined class 'TableModel' (C:\Users\bichiou\Documents\2025-2026\MyWork\Stouchi\stouchi\lib\features\pos\pos_provider.dart:116:17)
+[error] The name 'TableModel' isn't a type, so it can't be used as a type argument (C:\Users\bichiou\Documents\2025-2026\MyWork\Stouchi\stouchi\lib\features\pos\pos_screen.dart:571:48)

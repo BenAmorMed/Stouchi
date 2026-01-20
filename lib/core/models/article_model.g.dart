@@ -18,6 +18,13 @@ _$ArticleModelImpl _$$ArticleModelImplFromJson(Map<String, dynamic> json) =>
               json['commentConfig'] as Map<String, dynamic>,
             ),
       imageUrl: json['imageUrl'] as String?,
+      totalProfit: (json['totalProfit'] as num?)?.toDouble() ?? 0.0,
+      isComposite: json['isComposite'] as bool? ?? false,
+      recipe:
+          (json['recipe'] as List<dynamic>?)
+              ?.map((e) => RecipeIngredient.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
 
 Map<String, dynamic> _$$ArticleModelImplToJson(_$ArticleModelImpl instance) =>
@@ -28,4 +35,7 @@ Map<String, dynamic> _$$ArticleModelImplToJson(_$ArticleModelImpl instance) =>
       'categoryId': instance.categoryId,
       'commentConfig': instance.commentConfig.toJson(),
       'imageUrl': instance.imageUrl,
+      'totalProfit': instance.totalProfit,
+      'isComposite': instance.isComposite,
+      'recipe': instance.recipe.map((e) => e.toJson()).toList(),
     };

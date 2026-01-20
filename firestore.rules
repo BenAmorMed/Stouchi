@@ -35,7 +35,8 @@ service cloud.firestore {
     }
     match /articles/{articleId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAuthenticated();
     }
 
     // Orders
@@ -70,9 +71,31 @@ service cloud.firestore {
     // Shifts
     match /shifts/{shiftId} {
       allow create: if isAuthenticated();
-      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow read: if true; // Relaxed for initial load
       allow update: if isAuthenticated() && (resource.data.userId == request.auth.uid || isAdmin());
       allow delete: if isAdmin();
+    }
+
+    // Stock Products (Inventory)
+    match /stock_products/{productId} {
+      allow read: if true; // Same as articles/categories
+      allow create, delete: if isAdmin();
+      allow update: if isAuthenticated();
+    }
+
+    // Time Tracking & Schedules
+    match /time_entries/{entryId} {
+      allow read, write: if true;
+    }
+    match /work_schedules/{scheduleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Tables
+    match /tables/{tableId} {
+      allow read: if true;
+      allow write: if isAuthenticated();
     }
   }
 }

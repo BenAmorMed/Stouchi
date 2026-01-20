@@ -1,4 +1,5 @@
 import 'dart:ui';
+import '../../core/models/table_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/order_model.dart';
@@ -11,12 +12,20 @@ import '../../core/models/article_model.dart';
 import 'live_orders_screen.dart';
 import '../../core/models/order_item_model.dart';
 import '../auth/profile_screen.dart';
+import 'table_selection_screen.dart';
 
-class POSScreen extends ConsumerWidget {
+class POSScreen extends ConsumerStatefulWidget {
   const POSScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<POSScreen> createState() => _POSScreenState();
+}
+
+class _POSScreenState extends ConsumerState<POSScreen> {
+  bool _isProcessing = false;
+
+  @override
+  Widget build(BuildContext context) {
     final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final cart = ref.watch(cartProvider);
     final theme = Theme.of(context);
@@ -25,89 +34,100 @@ class POSScreen extends ConsumerWidget {
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 900;
 
-        return Scaffold(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          appBar: AppBar(
-            title: const Text('Stouchi POS'),
-            backgroundColor: Colors.transparent,
-            leading: isMobile
-                ? Builder(
-                    builder: (context) => IconButton(
-                      icon: const Icon(Icons.menu_rounded),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                    ),
-                  )
-                : null,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.table_bar_rounded),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LiveOrdersScreen()),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.person_outline_rounded),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.bar_chart_rounded),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ServerStatisticsScreen()),
-                ),
-              ),
-              if (isMobile)
-                Builder(
-                  builder: (context) => Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.shopping_cart_outlined),
-                        onPressed: () => Scaffold.of(context).openEndDrawer(),
-                      ),
-                      if (cart.items.isNotEmpty)
-                        Positioned(
-                          right: 8,
-                          top: 8,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                            child: Text(
-                              '${cart.items.length}',
-                              style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: theme.scaffoldBackgroundColor,
+              appBar: AppBar(
+                title: const Text('Stouchi POS'),
+                backgroundColor: Colors.transparent,
+                leading: isMobile
+                    ? Builder(
+                        builder: (context) => IconButton(
+                          icon: const Icon(Icons.menu_rounded),
+                          onPressed: () => Scaffold.of(context).openDrawer(),
                         ),
-                    ],
+                      )
+                    : null,
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.table_bar_rounded),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LiveOrdersScreen()),
+                    ),
                   ),
-                ),
-              const SizedBox(width: 8),
-            ],
-          ),
-          drawer: isMobile ? _buildCategoriesSidebar(context, ref, true) : null,
-          endDrawer: isMobile ? _buildOrderSidebar(context, ref, true) : null,
-          body: Row(
-            children: [
-              // 1. Categories Sidebar (Left) - Desktop Only
-              if (!isMobile)
-                _buildCategoriesSidebar(context, ref, false),
-
-              // 2. Articles Grid (Center)
-              Expanded(
-                child: _buildArticlesGrid(context, ref, selectedCategoryId, cart),
+                  IconButton(
+                    icon: const Icon(Icons.person_outline_rounded),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.bar_chart_rounded),
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ServerStatisticsScreen()),
+                    ),
+                  ),
+                  if (isMobile)
+                    Builder(
+                      builder: (context) => Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.shopping_cart_outlined),
+                            onPressed: () => Scaffold.of(context).openEndDrawer(),
+                          ),
+                          if (cart.items.isNotEmpty)
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                child: Text(
+                                  '${cart.items.length}',
+                                  style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                ],
               ),
+              drawer: isMobile ? _buildCategoriesSidebar(context, ref, true) : null,
+              endDrawer: isMobile ? _buildOrderSidebar(context, ref, true) : null,
+              body: Row(
+                children: [
+                  // 1. Categories Sidebar (Left) - Desktop Only
+                  if (!isMobile)
+                    _buildCategoriesSidebar(context, ref, false),
 
-              // 3. Order Sidebar (Right) - Desktop Only
-              if (!isMobile)
-                _buildOrderSidebar(context, ref, false),
-            ],
-          ),
+                  // 2. Articles Grid (Center)
+                  Expanded(
+                    child: _buildArticlesGrid(context, ref, selectedCategoryId, cart),
+                  ),
+
+                  // 3. Order Sidebar (Right) - Desktop Only
+                  if (!isMobile)
+                    _buildOrderSidebar(context, ref, false),
+                ],
+              ),
+            ),
+            if (_isProcessing)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.black54,
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ),
+          ],
         );
       },
     );
@@ -399,7 +419,7 @@ class POSScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton(
-                      onPressed: cart.items.isEmpty ? null : () => _quickSave(context, ref),
+                      onPressed: cart.items.isEmpty ? null : () => _quickSave(context),
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(56),
                         side: BorderSide(color: AppTheme.primaryColor.withValues(alpha: 0.5), width: 2),
@@ -451,12 +471,19 @@ class POSScreen extends ConsumerWidget {
                     itemCount: articles.length,
                     itemBuilder: (context, index) {
                       final article = articles[index];
-                      final isInCart = cart.items.any((item) => item.articleId == article.id);
+                      final cartItem = cart.items.firstWhere(
+                          (item) => item.articleId == article.id, 
+                          orElse: () => OrderItemModel(
+                            articleId: '', articleName: '', price: 0, quantity: 0
+                          )
+                      );
                       
                       return _ArticleCard(
                         article: article,
-                        isSelected: isInCart,
-                        onTap: () => ref.read(cartProvider.notifier).toggleArticle(article),
+                        cartQuantity: cartItem.quantity, // Pass current cart quantity
+                        onTap: () {
+                           ref.read(cartProvider.notifier).toggleArticle(article);
+                        },
                         onLongPress: () {
                           if (article.commentConfig.hasComments) {
                             final currentItem = cart.items.firstWhere(
@@ -469,10 +496,8 @@ class POSScreen extends ConsumerWidget {
                               ),
                             );
                             
-                            if (!isInCart) {
-                              ref.read(cartProvider.notifier).toggleArticle(article);
-                            }
-
+                            // Validation done in onConfirm
+                            
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
@@ -481,9 +506,11 @@ class POSScreen extends ConsumerWidget {
                                 article: article,
                                 initialComments: currentItem.comments,
                                 initialQuantity: currentItem.quantity,
-                                onConfirm: (quantity, comments) => ref
-                                    .read(cartProvider.notifier)
-                                    .updateItem(article.id, quantity, comments),
+                                onConfirm: (quantity, comments) {
+                                    // Note: In a future update, we can re-add validation here by checking the stock_products collection
+                                   ref.read(cartProvider.notifier)
+                                    .updateItem(article.id, quantity, comments);
+                                },
                               ),
                             );
                           }
@@ -498,132 +525,70 @@ class POSScreen extends ConsumerWidget {
     );
   }
 
-  void _quickSave(BuildContext context, WidgetRef ref) async {
-    final cart = ref.read(cartProvider);
+  void _quickSave(BuildContext context) async {
+    if (_isProcessing) return;
     
-    if (cart.tableName == null) {
+    final cart = ref.read(cartProvider);
+    if (cart.items.isEmpty) return;
+    
+    // Ensure we have a valid user ID (should not be empty for Firestore)
+    if (cart.userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a table first! 🏢')),
+        const SnackBar(content: Text('Error: Not logged in correctly.')),
       );
-      _showTablePicker(context, ref);
       return;
     }
 
+    final messenger = ScaffoldMessenger.of(context);
+
+    setState(() => _isProcessing = true);
     try {
-      final finalOrder = cart.copyWith(
-        timestamp: DateTime.now(), 
-        status: OrderStatus.pending, // Pending order for the table
-        tip: 0.0,
+      // Logic for Quick Save is now: HOLD (Stay) instead of COMPLETE (Pay)
+      final orderToHold = cart.copyWith(
+        timestamp: DateTime.now(),
       );
-      await ref.read(orderServiceProvider).completeOrder(finalOrder);
+
+      await ref.read(orderServiceProvider).holdOrder(orderToHold);
+      
       ref.read(cartProvider.notifier).clear();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Order saved to table successfully! 🏢🚀')),
-        );
-      }
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Order saved to table successfully!')),
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving order: $e')),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Error saving quick order: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
     }
   }
 
-  void _cancelOrder(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppTheme.surfaceColor,
-        title: const Text('Cancel Order?', style: TextStyle(color: Colors.white)),
-        content: const Text('Are you sure you want to cancel the current order? This cannot be undone.', style: TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('No, Keep Order', style: TextStyle(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Yes, Cancel', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true) {
-       ref.read(cartProvider.notifier).clear();
-       if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Order cancelled and cleared 🗑️')),
-          );
-       }
-    }
+  void _cancelOrder(BuildContext context, WidgetRef ref) {
+    ref.read(cartProvider.notifier).clear();
   }
-
-  void _showTablePicker(BuildContext context, WidgetRef ref) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: AppTheme.backgroundColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          children: [
-            const Text('Select Table', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 24),
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1,
-                ),
-                itemCount: 20, // 20 tables as example
-                itemBuilder: (context, index) {
-                  final tableName = 'Table ${index + 1}';
-                  return InkWell(
-                    onTap: () {
-                      ref.read(cartProvider.notifier).setTable(tableName);
-                      Navigator.pop(context);
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppTheme.surfaceColor,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-                      ),
-                      child: Text(tableName, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+  
+  void _showTablePicker(BuildContext context, WidgetRef ref) async {
+    // Navigate to visual table selection
+    final selectedTable = await Navigator.push<TableModel>(
+      context,
+      MaterialPageRoute(builder: (context) => const TableSelectionScreen()),
     );
+
+    if (selectedTable != null) {
+      ref.read(cartProvider.notifier).setTable(selectedTable);
+    }
   }
 }
 
 class _ArticleCard extends StatefulWidget {
   final ArticleModel article;
-  final bool isSelected;
+  final double cartQuantity;
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
   const _ArticleCard({
     required this.article,
-    required this.isSelected,
+    required this.cartQuantity,
     required this.onTap,
     required this.onLongPress,
   });
@@ -655,6 +620,7 @@ class _ArticleCardState extends State<_ArticleCard> with SingleTickerProviderSta
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isSelected = widget.cartQuantity > 0;
     
     return GestureDetector(
       onTapDown: (_) => _controller.forward(),
@@ -667,70 +633,99 @@ class _ArticleCardState extends State<_ArticleCard> with SingleTickerProviderSta
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: widget.isSelected ? theme.primaryColor : theme.cardColor,
-            borderRadius: BorderRadius.circular(20), // More rounded
+            color: isSelected ? theme.primaryColor : theme.cardColor,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: widget.isSelected ? theme.primaryColor : theme.dividerColor.withValues(alpha: 0.1),
+              color: isSelected ? theme.primaryColor : theme.dividerColor.withValues(alpha: 0.1),
               width: 2,
             ),
-            boxShadow: widget.isSelected
-                ? [
-                    BoxShadow(
-                      color: theme.primaryColor.withValues(alpha: 0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    )
-                  ]
-                : [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    )
-                  ],
-          ),
-          child: Stack(
-            children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.article.name,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: widget.isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '\$${widget.article.price.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: widget.isSelected ? Colors.white.withValues(alpha: 0.8) : theme.textTheme.bodyMedium?.color,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (widget.article.commentConfig.hasComments)
-                const Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Icon(
-                    Icons.comment_outlined,
-                    size: 14,
-                    color: Colors.white54,
-                  ),
+            boxShadow: [
+              if (isSelected)
+                BoxShadow(
+                  color: theme.primaryColor.withValues(alpha: 0.3),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
             ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: widget.article.imageUrl != null
+                          ? Image.network(
+                              widget.article.imageUrl!,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              color: theme.primaryColor.withValues(alpha: 0.05),
+                              child: Icon(
+                                Icons.restaurant_menu,
+                                color: isSelected ? Colors.white : theme.primaryColor,
+                                size: 32,
+                              ),
+                            ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.article.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                                color: isSelected ? Colors.white : theme.textTheme.bodyLarge?.color,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '\$${widget.article.price.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                                color: isSelected ? Colors.white.withValues(alpha: 0.8) : theme.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (isSelected)
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${widget.cartQuantity}',
+                        style: TextStyle(
+                          color: theme.primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

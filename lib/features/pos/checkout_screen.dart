@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/models/order_model.dart';
 import 'pos_provider.dart';
-import '../../services/order_service.dart';
 
-final orderServiceProvider = Provider((ref) => OrderService());
+
+
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});

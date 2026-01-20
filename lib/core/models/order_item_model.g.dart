@@ -11,7 +11,8 @@ _$OrderItemModelImpl _$$OrderItemModelImplFromJson(Map<String, dynamic> json) =>
       articleId: json['articleId'] as String,
       articleName: json['articleName'] as String,
       price: (json['price'] as num).toDouble(),
-      quantity: (json['quantity'] as num?)?.toInt() ?? 1,
+      quantity: (json['quantity'] as num?)?.toDouble() ?? 1.0,
+      costPrice: (json['costPrice'] as num?)?.toDouble() ?? 0.0,
       comments:
           (json['comments'] as List<dynamic>?)
               ?.map((e) => e as String)
@@ -26,5 +27,6 @@ Map<String, dynamic> _$$OrderItemModelImplToJson(
   'articleName': instance.articleName,
   'price': instance.price,
   'quantity': instance.quantity,
+  'costPrice': instance.costPrice,
   'comments': instance.comments,
 };
