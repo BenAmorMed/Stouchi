@@ -27,6 +27,9 @@ mixin _$UserModel {
   UserRole get role => throw _privateConstructorUsedError;
   bool get isFirstLogin => throw _privateConstructorUsedError;
   String? get currentShiftId => throw _privateConstructorUsedError;
+  double get hourlyRate => throw _privateConstructorUsedError;
+  double get baseSalary => throw _privateConstructorUsedError;
+  SalaryType get salaryType => throw _privateConstructorUsedError;
 
   /// Serializes this UserModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -50,6 +53,9 @@ abstract class $UserModelCopyWith<$Res> {
     UserRole role,
     bool isFirstLogin,
     String? currentShiftId,
+    double hourlyRate,
+    double baseSalary,
+    SalaryType salaryType,
   });
 }
 
@@ -74,6 +80,9 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
     Object? role = null,
     Object? isFirstLogin = null,
     Object? currentShiftId = freezed,
+    Object? hourlyRate = null,
+    Object? baseSalary = null,
+    Object? salaryType = null,
   }) {
     return _then(
       _value.copyWith(
@@ -101,6 +110,18 @@ class _$UserModelCopyWithImpl<$Res, $Val extends UserModel>
                 ? _value.currentShiftId
                 : currentShiftId // ignore: cast_nullable_to_non_nullable
                       as String?,
+            hourlyRate: null == hourlyRate
+                ? _value.hourlyRate
+                : hourlyRate // ignore: cast_nullable_to_non_nullable
+                      as double,
+            baseSalary: null == baseSalary
+                ? _value.baseSalary
+                : baseSalary // ignore: cast_nullable_to_non_nullable
+                      as double,
+            salaryType: null == salaryType
+                ? _value.salaryType
+                : salaryType // ignore: cast_nullable_to_non_nullable
+                      as SalaryType,
           )
           as $Val,
     );
@@ -123,6 +144,9 @@ abstract class _$$UserModelImplCopyWith<$Res>
     UserRole role,
     bool isFirstLogin,
     String? currentShiftId,
+    double hourlyRate,
+    double baseSalary,
+    SalaryType salaryType,
   });
 }
 
@@ -146,6 +170,9 @@ class __$$UserModelImplCopyWithImpl<$Res>
     Object? role = null,
     Object? isFirstLogin = null,
     Object? currentShiftId = freezed,
+    Object? hourlyRate = null,
+    Object? baseSalary = null,
+    Object? salaryType = null,
   }) {
     return _then(
       _$UserModelImpl(
@@ -173,6 +200,18 @@ class __$$UserModelImplCopyWithImpl<$Res>
             ? _value.currentShiftId
             : currentShiftId // ignore: cast_nullable_to_non_nullable
                   as String?,
+        hourlyRate: null == hourlyRate
+            ? _value.hourlyRate
+            : hourlyRate // ignore: cast_nullable_to_non_nullable
+                  as double,
+        baseSalary: null == baseSalary
+            ? _value.baseSalary
+            : baseSalary // ignore: cast_nullable_to_non_nullable
+                  as double,
+        salaryType: null == salaryType
+            ? _value.salaryType
+            : salaryType // ignore: cast_nullable_to_non_nullable
+                  as SalaryType,
       ),
     );
   }
@@ -188,6 +227,9 @@ class _$UserModelImpl implements _UserModel {
     required this.role,
     this.isFirstLogin = true,
     this.currentShiftId,
+    this.hourlyRate = 0.0,
+    this.baseSalary = 0.0,
+    this.salaryType = SalaryType.hourly,
   });
 
   factory _$UserModelImpl.fromJson(Map<String, dynamic> json) =>
@@ -206,10 +248,19 @@ class _$UserModelImpl implements _UserModel {
   final bool isFirstLogin;
   @override
   final String? currentShiftId;
+  @override
+  @JsonKey()
+  final double hourlyRate;
+  @override
+  @JsonKey()
+  final double baseSalary;
+  @override
+  @JsonKey()
+  final SalaryType salaryType;
 
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, email: $email, role: $role, isFirstLogin: $isFirstLogin, currentShiftId: $currentShiftId)';
+    return 'UserModel(id: $id, name: $name, email: $email, role: $role, isFirstLogin: $isFirstLogin, currentShiftId: $currentShiftId, hourlyRate: $hourlyRate, baseSalary: $baseSalary, salaryType: $salaryType)';
   }
 
   @override
@@ -224,7 +275,13 @@ class _$UserModelImpl implements _UserModel {
             (identical(other.isFirstLogin, isFirstLogin) ||
                 other.isFirstLogin == isFirstLogin) &&
             (identical(other.currentShiftId, currentShiftId) ||
-                other.currentShiftId == currentShiftId));
+                other.currentShiftId == currentShiftId) &&
+            (identical(other.hourlyRate, hourlyRate) ||
+                other.hourlyRate == hourlyRate) &&
+            (identical(other.baseSalary, baseSalary) ||
+                other.baseSalary == baseSalary) &&
+            (identical(other.salaryType, salaryType) ||
+                other.salaryType == salaryType));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -237,6 +294,9 @@ class _$UserModelImpl implements _UserModel {
     role,
     isFirstLogin,
     currentShiftId,
+    hourlyRate,
+    baseSalary,
+    salaryType,
   );
 
   /// Create a copy of UserModel
@@ -261,6 +321,9 @@ abstract class _UserModel implements UserModel {
     required final UserRole role,
     final bool isFirstLogin,
     final String? currentShiftId,
+    final double hourlyRate,
+    final double baseSalary,
+    final SalaryType salaryType,
   }) = _$UserModelImpl;
 
   factory _UserModel.fromJson(Map<String, dynamic> json) =
@@ -278,6 +341,12 @@ abstract class _UserModel implements UserModel {
   bool get isFirstLogin;
   @override
   String? get currentShiftId;
+  @override
+  double get hourlyRate;
+  @override
+  double get baseSalary;
+  @override
+  SalaryType get salaryType;
 
   /// Create a copy of UserModel
   /// with the given fields replaced by the non-null parameter values.

@@ -11,13 +11,6 @@ class OrderService {
 
   Future<void> completeOrder(OrderModel order) async {
     await _db.runTransaction((transaction) async {
-      // Free the table if it exists
-      if (order.tableId != null) {
-        transaction.update(_db.collection('tables').doc(order.tableId), {
-          'status': TableStatus.free.name,
-        });
-      }
-
       final articleProfitUpdates = <String, double>{};
       final stockDeductionUpdates = <String, Map<String, dynamic>>{};
       final processedItems = <OrderItemModel>[];
@@ -118,17 +111,26 @@ class OrderService {
         processedItems.add(item.copyWith(costPrice: itemTotalCost / item.quantity));
       }
 
+      // WRITES START HERE
       for (final entry in articleProfitUpdates.entries) {
         transaction.update(_db.collection('articles').doc(entry.key), {'totalProfit': entry.value});
       }
       for (final entry in stockDeductionUpdates.entries) {
         transaction.update(_db.collection('stock_products').doc(entry.key), entry.value);
       }
+
+      // Free the table if it exists
+      if (order.tableId != null) {
+        transaction.update(_db.collection('tables').doc(order.tableId), {
+          'status': TableStatus.free.name,
+        });
+      }
       
       final orderRef = order.id.isEmpty ? _db.collection('orders').doc() : _db.collection('orders').doc(order.id);
       final finalOrderWithId = order.copyWith(
         id: orderRef.id,
         items: processedItems,
+        status: OrderStatus.completed,
       );
       
       transaction.set(orderRef, finalOrderWithId.toJson());
@@ -233,5 +235,49 @@ class OrderService {
 
       transaction.set(orderRef, finalOrder.toJson());
     });
+  }
+
+  /// Cancel/Mark an order as cancelled and free its table
+  Future<void> cancelOrder(String orderId) async {
+    if (orderId.isEmpty) return; // Nothing to cancel if there's no order ID
+    
+    await _db.runTransaction((transaction) async {
+      final orderRef = _db.collection('orders').doc(orderId);
+      final orderDoc = await transaction.get(orderRef);
+      
+      if (!orderDoc.exists) return;
+      
+      final orderData = orderDoc.data()!;
+      final tableId = orderData['tableId'] as String?;
+      
+      // Free the table if it exists
+      if (tableId != null) {
+        final tableRef = _db.collection('tables').doc(tableId);
+        final tableDoc = await transaction.get(tableRef);
+        
+        if (tableDoc.exists) {
+          // If it's a temp table (created automatically), delete it
+          if (tableId.startsWith('temp_')) {
+            transaction.delete(tableRef);
+          } else {
+            // Otherwise, just mark it as free
+            transaction.update(tableRef, {
+              'status': TableStatus.free.name,
+            });
+          }
+        }
+      }
+      
+      // Delete the order permanently
+      transaction.delete(orderRef);
+    });
+  }
+
+  /// Update an existing order in Firestore
+  Future<void> updateOrder(OrderModel order) async {
+    if (order.id.isEmpty) return; // Nothing to update if there's no order ID
+    
+    final orderRef = _db.collection('orders').doc(order.id);
+    await orderRef.update(order.toJson());
   }
 }

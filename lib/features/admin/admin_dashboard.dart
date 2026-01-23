@@ -11,6 +11,9 @@ import '../auth/profile_screen.dart';
 import 'calendar/admin_calendar_screen.dart';
 import 'stock/inventory_screen.dart';
 import 'tables/table_layout_screen.dart';
+import 'fixed_expenses/fixed_expenses_screen.dart';
+import 'salary/salary_management_screen.dart';
+import 'widgets/history_reset_dialog.dart';
 
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});
@@ -142,6 +145,37 @@ class AdminDashboard extends ConsumerWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const TableLayoutScreen()),
+                  ),
+                ),
+                _AdminCard(
+                  title: 'Staff Salaries',
+                  subtitle: 'Pay & Tracking',
+                  icon: Icons.payments_rounded,
+                  color: Colors.green,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SalaryManagementScreen()),
+                  ),
+                ),
+                _AdminCard(
+                  title: 'Fixed Charges',
+                  subtitle: 'Rent, Tax, bills',
+                  icon: Icons.money_off_csred_rounded,
+                  color: Colors.redAccent,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const FixedExpensesScreen()),
+                  ),
+                ),
+                _AdminCard(
+                  title: 'Reset History',
+                  subtitle: 'Report & Delete',
+                  icon: Icons.history_toggle_off_rounded,
+                  color: Colors.deepOrange, // Distinctive color
+                  onTap: () => showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const HistoryResetDialog(),
                   ),
                 ),
               ],

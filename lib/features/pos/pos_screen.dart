@@ -33,22 +33,28 @@ class _POSScreenState extends ConsumerState<POSScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 900;
+        final hasCategory = selectedCategoryId != null;
 
         return Stack(
           children: [
             Scaffold(
               backgroundColor: theme.scaffoldBackgroundColor,
               appBar: AppBar(
-                title: const Text('Stouchi POS'),
+                title: Text(hasCategory ? 'Select Articles' : 'Categories'),
                 backgroundColor: Colors.transparent,
-                leading: isMobile
-                    ? Builder(
-                        builder: (context) => IconButton(
-                          icon: const Icon(Icons.menu_rounded),
-                          onPressed: () => Scaffold.of(context).openDrawer(),
-                        ),
+                leading: hasCategory 
+                    ? IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                        onPressed: () => ref.read(selectedCategoryIdProvider.notifier).state = null,
                       )
-                    : null,
+                    : (isMobile
+                        ? Builder(
+                            builder: (context) => IconButton(
+                              icon: const Icon(Icons.menu_rounded),
+                              onPressed: () => Scaffold.of(context).openDrawer(),
+                            ),
+                          )
+                        : null),
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.table_bar_rounded),
@@ -71,52 +77,20 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                       MaterialPageRoute(builder: (context) => const ServerStatisticsScreen()),
                     ),
                   ),
-                  if (isMobile)
-                    Builder(
-                      builder: (context) => Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.shopping_cart_outlined),
-                            onPressed: () => Scaffold.of(context).openEndDrawer(),
-                          ),
-                          if (cart.items.isNotEmpty)
-                            Positioned(
-                              right: 8,
-                              top: 8,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
-                                constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
-                                child: Text(
-                                  '${cart.items.length}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
                   const SizedBox(width: 8),
                 ],
               ),
-              drawer: isMobile ? _buildCategoriesSidebar(context, ref, true) : null,
-              endDrawer: isMobile ? _buildOrderSidebar(context, ref, true) : null,
-              body: Row(
+              drawer: null,
+              endDrawer: _buildOrderSidebar(context, ref, true),
+              body: Column(
                 children: [
-                  // 1. Categories Sidebar (Left) - Desktop Only
-                  if (!isMobile)
-                    _buildCategoriesSidebar(context, ref, false),
-
-                  // 2. Articles Grid (Center)
                   Expanded(
-                    child: _buildArticlesGrid(context, ref, selectedCategoryId, cart),
+                    child: hasCategory 
+                        ? _buildArticlesGrid(context, ref, selectedCategoryId, cart)
+                        : _buildCategoryGrid(context, ref),
                   ),
-
-                  // 3. Order Sidebar (Right) - Desktop Only
-                  if (!isMobile)
-                    _buildOrderSidebar(context, ref, false),
+                  if (cart.items.isNotEmpty)
+                    _buildBottomOrderBar(context, ref, cart),
                 ],
               ),
             ),
@@ -133,87 +107,69 @@ class _POSScreenState extends ConsumerState<POSScreen> {
     );
   }
 
-  Widget _buildCategoriesSidebar(BuildContext context, WidgetRef ref, bool isDrawer) {
+  Widget _buildCategoryGrid(BuildContext context, WidgetRef ref) {
     final categoriesAsync = ref.watch(categoriesProvider);
-    final selectedCategoryId = ref.watch(selectedCategoryIdProvider);
     final theme = Theme.of(context);
 
-    final content = ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          width: isDrawer ? 280 : null,
-          color: isDrawer 
-              ? theme.cardColor.withValues(alpha: 0.9) 
-              : theme.cardColor.withValues(alpha: 0.4),
-          child: categoriesAsync.when(
-            data: (categories) {
-              if (selectedCategoryId == null && categories.isNotEmpty) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  ref.read(selectedCategoryIdProvider.notifier).state = categories[0].id;
-                });
-              }
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  final isSelected = selectedCategoryId == category.id;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 16.0),
-                    child: InkWell(
-                      onTap: () {
-                        ref.read(selectedCategoryIdProvider.notifier).state = category.id;
-                        if (isDrawer) Navigator.pop(context);
-                      },
-                      borderRadius: BorderRadius.circular(16),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                        decoration: BoxDecoration(
-                          color: isSelected ? theme.primaryColor : theme.canvasColor.withValues(alpha: 0.5),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: isSelected
-                              ? [BoxShadow(color: theme.primaryColor.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))]
-                              : [],
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.category_rounded,
-                              color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
-                              size: 18,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                category.name,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  color: isSelected ? Colors.white : theme.textTheme.bodyMedium?.color,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, s) => const Icon(Icons.error),
+    return categoriesAsync.when(
+      data: (categories) {
+        if (categories.isEmpty) {
+          return const Center(child: Text('No categories found'));
+        }
+        return GridView.builder(
+          padding: const EdgeInsets.all(24),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 1.2,
+            crossAxisSpacing: 20,
+            mainAxisSpacing: 20,
           ),
-        ),
-      ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return InkWell(
+              onTap: () => ref.read(selectedCategoryIdProvider.notifier).state = category.id,
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.cardColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: theme.dividerColor.withValues(alpha: 0.1)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: theme.primaryColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.category_rounded, color: theme.primaryColor, size: 32),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      category.name,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (e, s) => Center(child: Text('Error: $e')),
     );
-
-    if (isDrawer) return Drawer(child: content);
-    return Flexible(flex: 2, child: content);
   }
 
   Widget _buildOrderSidebar(BuildContext context, WidgetRef ref, bool isDrawer) {
@@ -311,10 +267,11 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                                   builder: (context) => CommentSelectionModal(
                                     article: article,
                                     initialComments: item.comments,
+                                    initialPerUnitComments: item.perUnitComments,
                                     initialQuantity: item.quantity,
-                                    onConfirm: (quantity, comments) => ref
+                                    onConfirm: (quantity, comments, perUnitComments) => ref
                                         .read(cartProvider.notifier)
-                                        .updateItem(item.articleId, quantity, comments),
+                                        .updateItem(item.articleId, quantity, comments, perUnitComments),
                                   ),
                                 );
                               }
@@ -365,11 +322,31 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                                       ),
                                     ],
                                   ),
-                                  if (item.comments.isNotEmpty) ...[
+                                  if (item.comments.isNotEmpty || item.perUnitComments.isNotEmpty) ...[
                                     const SizedBox(height: 8),
-                                    Text(
-                                      item.comments.join(', '),
-                                      style: const TextStyle(fontSize: 11, color: Colors.white70, fontStyle: FontStyle.italic),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Global comments (apply to all)
+                                        if (item.comments.isNotEmpty)
+                                          Text(
+                                            '✓ All: ${item.comments.join(', ')}',
+                                            style: const TextStyle(fontSize: 11, color: Colors.white70, fontStyle: FontStyle.italic),
+                                          ),
+                                        // Per-unit comments
+                                        ...item.perUnitComments.entries.map((entry) {
+                                          final unitIndex = entry.key;
+                                          final unitComments = entry.value;
+                                          if (unitComments.isEmpty) return const SizedBox.shrink();
+                                          return Padding(
+                                            padding: const EdgeInsets.only(top: 4),
+                                            child: Text(
+                                              '${unitIndex + 1}. ${unitComments.join(', ')}',
+                                              style: const TextStyle(fontSize: 11, color: Colors.white70, fontStyle: FontStyle.italic),
+                                            ),
+                                          );
+                                        }),
+                                      ],
                                     ),
                                   ],
                                   const SizedBox(height: 8),
@@ -452,6 +429,75 @@ class _POSScreenState extends ConsumerState<POSScreen> {
     return Flexible(flex: 2, child: content);
   }
 
+  Widget _buildBottomOrderBar(BuildContext context, WidgetRef ref, OrderModel cart) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
+          ),
+        ],
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      child: SafeArea(
+        child: Row(
+          children: [
+            Expanded(
+              child: InkWell(
+                onTap: () => Scaffold.of(context).openEndDrawer(),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${cart.items.length} Items',
+                      style: TextStyle(
+                        color: theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.6),
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '\$${cart.total.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (context) => const CheckoutScreen())
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.primaryColor,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(0, 56), // Override global infinite width
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 0,
+              ),
+              child: const Text(
+                'View Order',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildArticlesGrid(BuildContext context, WidgetRef ref, String? selectedCategoryId, OrderModel cart) {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -482,7 +528,7 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                         article: article,
                         cartQuantity: cartItem.quantity, // Pass current cart quantity
                         onTap: () {
-                           ref.read(cartProvider.notifier).toggleArticle(article);
+                           ref.read(cartProvider.notifier).addArticle(article);
                         },
                         onLongPress: () {
                           if (article.commentConfig.hasComments) {
@@ -505,11 +551,12 @@ class _POSScreenState extends ConsumerState<POSScreen> {
                               builder: (context) => CommentSelectionModal(
                                 article: article,
                                 initialComments: currentItem.comments,
+                                initialPerUnitComments: currentItem.perUnitComments,
                                 initialQuantity: currentItem.quantity,
-                                onConfirm: (quantity, comments) {
+                                onConfirm: (quantity, comments, perUnitComments) {
                                     // Note: In a future update, we can re-add validation here by checking the stock_products collection
                                    ref.read(cartProvider.notifier)
-                                    .updateItem(article.id, quantity, comments);
+                                    .updateItem(article.id, quantity, comments, perUnitComments);
                                 },
                               ),
                             );
@@ -563,7 +610,52 @@ class _POSScreenState extends ConsumerState<POSScreen> {
     }
   }
 
-  void _cancelOrder(BuildContext context, WidgetRef ref) {
+  void _cancelOrder(BuildContext context, WidgetRef ref) async {
+    final cart = ref.read(cartProvider);
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancel Order?'),
+        content: const Text('This will permanently delete the order and free up the table. This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('No, Keep It'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Yes, Cancel Order'),
+          ),
+        ],
+      ),
+    );
+    
+    if (confirmed != true) return;
+    if (!context.mounted) return;
+    
+    final messenger = ScaffoldMessenger.of(context);
+    
+    // If order has been saved (has an ID), mark it as cancelled in Firestore
+    if (cart.id.isNotEmpty) {
+      try {
+        setState(() => _isProcessing = true);
+        await ref.read(orderServiceProvider).cancelOrder(cart.id);
+        messenger.showSnackBar(
+          const SnackBar(content: Text('Order cancelled successfully')),
+        );
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Error cancelling order: $e')),
+        );
+      } finally {
+        if (mounted) setState(() => _isProcessing = false);
+      }
+    }
+    
+    // Clear the cart
     ref.read(cartProvider.notifier).clear();
   }
   

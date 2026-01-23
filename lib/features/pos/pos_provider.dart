@@ -56,7 +56,9 @@ final selectedCategoryIdProvider = StateProvider<String?>((ref) => null);
 
 // Cart State (managed as an OrderModel)
 class CartNotifier extends StateNotifier<OrderModel> {
-  CartNotifier(String userId)
+  final OrderService _orderService;
+
+  CartNotifier(String userId, this._orderService)
       : super(OrderModel(
           id: '',
           userId: userId,
@@ -85,6 +87,32 @@ class CartNotifier extends StateNotifier<OrderModel> {
     }
   }
 
+  void addArticle(ArticleModel article) {
+    final existingIndex = state.items.indexWhere((item) => item.articleId == article.id);
+
+    if (existingIndex >= 0) {
+      // Increment quantity if already in cart
+      final newItems = state.items.map((item) {
+        if (item.articleId == article.id) {
+          return item.copyWith(quantity: item.quantity + 1);
+        }
+        return item;
+      }).toList();
+      _updateState(newItems);
+    } else {
+      // Add new item with quantity 1 and default comment
+      final newItem = OrderItemModel(
+        articleId: article.id,
+        articleName: article.name,
+        price: article.price,
+        quantity: 1,
+        comments: [article.commentConfig.defaultOption],
+      );
+      final newItems = [...state.items, newItem];
+      _updateState(newItems);
+    }
+  }
+
   void updateComments(String articleId, List<String> comments) {
     final newItems = state.items.map((item) {
       if (item.articleId == articleId) {
@@ -95,10 +123,10 @@ class CartNotifier extends StateNotifier<OrderModel> {
     _updateState(newItems);
   }
 
-  void updateItem(String articleId, double quantity, List<String> comments) {
+  void updateItem(String articleId, double quantity, List<String> comments, Map<int, List<String>> perUnitComments) {
     final newItems = state.items.map((item) {
       if (item.articleId == articleId) {
-        return item.copyWith(quantity: quantity, comments: comments);
+        return item.copyWith(quantity: quantity, comments: comments, perUnitComments: perUnitComments);
       }
       return item;
     }).toList();
@@ -125,10 +153,18 @@ class CartNotifier extends StateNotifier<OrderModel> {
   void _updateState(List<OrderItemModel> items) {
     final total = items.fold(0.0, (acc, item) => acc + (item.price * item.quantity));
     state = state.copyWith(items: items, total: total);
+    
+    // If this is a saved order (has an ID), sync changes to Firestore
+    if (state.id.isNotEmpty) {
+      _orderService.updateOrder(state).catchError((error) {
+        debugPrint('Error syncing order to Firestore: $error');
+      });
+    }
   }
 }
 
 final cartProvider = StateNotifierProvider<CartNotifier, OrderModel>((ref) {
   final authState = ref.watch(authStateProvider).value;
-  return CartNotifier(authState?.uid ?? '');
+  final orderService = ref.watch(orderServiceProvider);
+  return CartNotifier(authState?.uid ?? '', orderService);
 });

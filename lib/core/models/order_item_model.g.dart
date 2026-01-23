@@ -18,6 +18,14 @@ _$OrderItemModelImpl _$$OrderItemModelImplFromJson(Map<String, dynamic> json) =>
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      perUnitComments:
+          (json['perUnitComments'] as Map<String, dynamic>?)?.map(
+            (k, e) => MapEntry(
+              int.parse(k),
+              (e as List<dynamic>).map((e) => e as String).toList(),
+            ),
+          ) ??
+          const {},
     );
 
 Map<String, dynamic> _$$OrderItemModelImplToJson(
@@ -29,4 +37,7 @@ Map<String, dynamic> _$$OrderItemModelImplToJson(
   'quantity': instance.quantity,
   'costPrice': instance.costPrice,
   'comments': instance.comments,
+  'perUnitComments': instance.perUnitComments.map(
+    (k, e) => MapEntry(k.toString(), e),
+  ),
 };

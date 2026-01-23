@@ -28,7 +28,10 @@ mixin _$OrderItemModel {
       throw _privateConstructorUsedError; // Changed from int to double
   double get costPrice =>
       throw _privateConstructorUsedError; // For profit calculation (FIFO based)
-  List<String> get comments => throw _privateConstructorUsedError;
+  List<String> get comments =>
+      throw _privateConstructorUsedError; // Global comments applied to all units
+  Map<int, List<String>> get perUnitComments =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this OrderItemModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -54,6 +57,7 @@ abstract class $OrderItemModelCopyWith<$Res> {
     double quantity,
     double costPrice,
     List<String> comments,
+    Map<int, List<String>> perUnitComments,
   });
 }
 
@@ -78,6 +82,7 @@ class _$OrderItemModelCopyWithImpl<$Res, $Val extends OrderItemModel>
     Object? quantity = null,
     Object? costPrice = null,
     Object? comments = null,
+    Object? perUnitComments = null,
   }) {
     return _then(
       _value.copyWith(
@@ -105,6 +110,10 @@ class _$OrderItemModelCopyWithImpl<$Res, $Val extends OrderItemModel>
                 ? _value.comments
                 : comments // ignore: cast_nullable_to_non_nullable
                       as List<String>,
+            perUnitComments: null == perUnitComments
+                ? _value.perUnitComments
+                : perUnitComments // ignore: cast_nullable_to_non_nullable
+                      as Map<int, List<String>>,
           )
           as $Val,
     );
@@ -127,6 +136,7 @@ abstract class _$$OrderItemModelImplCopyWith<$Res>
     double quantity,
     double costPrice,
     List<String> comments,
+    Map<int, List<String>> perUnitComments,
   });
 }
 
@@ -150,6 +160,7 @@ class __$$OrderItemModelImplCopyWithImpl<$Res>
     Object? quantity = null,
     Object? costPrice = null,
     Object? comments = null,
+    Object? perUnitComments = null,
   }) {
     return _then(
       _$OrderItemModelImpl(
@@ -177,6 +188,10 @@ class __$$OrderItemModelImplCopyWithImpl<$Res>
             ? _value._comments
             : comments // ignore: cast_nullable_to_non_nullable
                   as List<String>,
+        perUnitComments: null == perUnitComments
+            ? _value._perUnitComments
+            : perUnitComments // ignore: cast_nullable_to_non_nullable
+                  as Map<int, List<String>>,
       ),
     );
   }
@@ -192,7 +207,9 @@ class _$OrderItemModelImpl implements _OrderItemModel {
     this.quantity = 1.0,
     this.costPrice = 0.0,
     final List<String> comments = const [],
-  }) : _comments = comments;
+    final Map<int, List<String>> perUnitComments = const {},
+  }) : _comments = comments,
+       _perUnitComments = perUnitComments;
 
   factory _$OrderItemModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$OrderItemModelImplFromJson(json);
@@ -221,9 +238,20 @@ class _$OrderItemModelImpl implements _OrderItemModel {
     return EqualUnmodifiableListView(_comments);
   }
 
+  // Global comments applied to all units
+  final Map<int, List<String>> _perUnitComments;
+  // Global comments applied to all units
+  @override
+  @JsonKey()
+  Map<int, List<String>> get perUnitComments {
+    if (_perUnitComments is EqualUnmodifiableMapView) return _perUnitComments;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_perUnitComments);
+  }
+
   @override
   String toString() {
-    return 'OrderItemModel(articleId: $articleId, articleName: $articleName, price: $price, quantity: $quantity, costPrice: $costPrice, comments: $comments)';
+    return 'OrderItemModel(articleId: $articleId, articleName: $articleName, price: $price, quantity: $quantity, costPrice: $costPrice, comments: $comments, perUnitComments: $perUnitComments)';
   }
 
   @override
@@ -240,7 +268,11 @@ class _$OrderItemModelImpl implements _OrderItemModel {
                 other.quantity == quantity) &&
             (identical(other.costPrice, costPrice) ||
                 other.costPrice == costPrice) &&
-            const DeepCollectionEquality().equals(other._comments, _comments));
+            const DeepCollectionEquality().equals(other._comments, _comments) &&
+            const DeepCollectionEquality().equals(
+              other._perUnitComments,
+              _perUnitComments,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -253,6 +285,7 @@ class _$OrderItemModelImpl implements _OrderItemModel {
     quantity,
     costPrice,
     const DeepCollectionEquality().hash(_comments),
+    const DeepCollectionEquality().hash(_perUnitComments),
   );
 
   /// Create a copy of OrderItemModel
@@ -280,6 +313,7 @@ abstract class _OrderItemModel implements OrderItemModel {
     final double quantity,
     final double costPrice,
     final List<String> comments,
+    final Map<int, List<String>> perUnitComments,
   }) = _$OrderItemModelImpl;
 
   factory _OrderItemModel.fromJson(Map<String, dynamic> json) =
@@ -296,7 +330,9 @@ abstract class _OrderItemModel implements OrderItemModel {
   @override
   double get costPrice; // For profit calculation (FIFO based)
   @override
-  List<String> get comments;
+  List<String> get comments; // Global comments applied to all units
+  @override
+  Map<int, List<String>> get perUnitComments;
 
   /// Create a copy of OrderItemModel
   /// with the given fields replaced by the non-null parameter values.

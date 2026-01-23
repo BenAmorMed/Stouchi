@@ -14,6 +14,11 @@ _$UserModelImpl _$$UserModelImplFromJson(Map<String, dynamic> json) =>
       role: $enumDecode(_$UserRoleEnumMap, json['role']),
       isFirstLogin: json['isFirstLogin'] as bool? ?? true,
       currentShiftId: json['currentShiftId'] as String?,
+      hourlyRate: (json['hourlyRate'] as num?)?.toDouble() ?? 0.0,
+      baseSalary: (json['baseSalary'] as num?)?.toDouble() ?? 0.0,
+      salaryType:
+          $enumDecodeNullable(_$SalaryTypeEnumMap, json['salaryType']) ??
+          SalaryType.hourly,
     );
 
 Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
@@ -24,6 +29,15 @@ Map<String, dynamic> _$$UserModelImplToJson(_$UserModelImpl instance) =>
       'role': _$UserRoleEnumMap[instance.role]!,
       'isFirstLogin': instance.isFirstLogin,
       'currentShiftId': instance.currentShiftId,
+      'hourlyRate': instance.hourlyRate,
+      'baseSalary': instance.baseSalary,
+      'salaryType': _$SalaryTypeEnumMap[instance.salaryType]!,
     };
 
 const _$UserRoleEnumMap = {UserRole.admin: 'admin', UserRole.server: 'server'};
+
+const _$SalaryTypeEnumMap = {
+  SalaryType.hourly: 'hourly',
+  SalaryType.fixed: 'fixed',
+  SalaryType.both: 'both',
+};
